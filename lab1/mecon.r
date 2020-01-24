@@ -21,6 +21,7 @@ df <- function(x){
 df(1)
 #[1] 1.110223
 df(100000)
+0
 
 # The reason of this one because
 # 1 + epx ( close to 1 ) -1 , 
@@ -38,6 +39,27 @@ myvar <- function(x){
 
 x = rnorm(10000, 10^8, 1)
 
-Y = myvar(x)-var(x)
-Y
+X=0
+for( i in (1:length(x)) ){
+  X = x[1:i]
+  Y[i]=myvar(X)-var(X)
+}
+
+plot(x=(1:length(x)), y=Y, xlab="i(1:100000)", ylab="Y")
+
+
+# Young's algorithm
+
+## v_x is a numerical vector of length greater than 2
+## this function calculates the sample variance 
+## using the Youngs and Cramer algorithm
+T<-v_x[1]
+RSS<-0
+n<-length(v_x)
+for (j in 2:n){
+  T<-T+v_x[j]
+  RSS<-RSS+((j*v_x[j]-T)^2)/(j*(j-1))
+}
+RSS/(n-1)
+}
 
