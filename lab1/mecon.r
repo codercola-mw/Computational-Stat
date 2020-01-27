@@ -83,7 +83,7 @@ for( i in (1:length(x)) ){
   Y[i]=myvar(X)-var(X)
 }
 
-plot(x=(1:length(x)), y=Y, xlab="i(1:100000)", ylab="Y")
+plot(x=(1:length(x)), y=Y, xlab="i(1:100000)", ylab="Variance")
 
 # How well does the function work?
 # According to the plot, the function works not well in its result. Since we can see
@@ -115,12 +115,27 @@ for( i in (1:length(x)) ){
   Y[i]=var_YC(X)-var(X)
 }
 
-plot(x=(1:length(x)), y=Y, xlab="i(1:100000)", ylab="Y")
+plot(x=(1:length(x)), y=Y, xlab="i(1:100000)", ylab="Variance")
 
 
 # The Young's cramer algothrim works better than myvar(), the values are very closed
 # to 0 with lower variances.
 
+#quention 4
+data = readxl::read_xls("~/Desktop/Computational-Stat/lab1/tecator.xls")
 
+#2.
+X <- as.matrix(data[,-103])
+y <- as.matrix(data[,103])
 
-#quention4
+A = t(X)%*%X
+b = t(X)%*%y
+
+#3.
+beta = solve(A, b)
+
+# Error in solve.default(A, b) : 
+# system is computationally singular: reciprocal condition number = 3.02429e-17
+
+#4.
+kappa(A)
