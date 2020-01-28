@@ -1,0 +1,186 @@
+---
+title: "Computational Statistics Lab1"
+author: "Jooyoung Lee, Vasileia Kampouraki, Weng Hang Wong"
+date: '2020 1 27 '
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# Question 1
+
+## 1-1.
+
+```{r}
+# The first given code
+x1 <- 1/3 ; x2 <- 1/4
+if (x1-x2 == 1/12) {
+  print("Subtraction is correct")
+} else {
+  print("Subtraction is wrong")
+}
+
+# The second given code
+x1 <- 1 ; x2 <- 1/2
+if (x1-x2 == 1/2) {
+  print("Subtraction is correct")
+} else {
+  print("Subtraction is wrong")
+}
+```
+
+ Mathematically, both snippets are expected to return the same result, "Subtraction is correct". However, while the second one prints expected result, the first one returns "Subtraction is wrong" instead.
+ 
+ This is related to rounding problem. In binary computer system, none of fractions, except the ones having $2$ as its denominator, has a finite decimals. Rationals with infinite decimals are rounded towards the nearest computer float so that usual mathematical laws do not hold. However, for the second snippet, since `x2 <- 1/2`, which is of finite decimals, the code returns expected mathematical result.
+ 
+## 1-2.
+
+ The problem related to the first given snippet can be improved as following method:
+ 
+```{r}
+x1 <- 1/3 ; x2 <- 1/4
+if (isTRUE(all.equal(x1-x2,1/12))) {
+  print("Subtraction is correct")
+} else {
+  print("Subtraction is wrong")
+}
+```
+
+ The function `all.equal` is used; according to its description in R Documentation, this function is to 'test if two objects are nearly equal'. By using this function, two values that are rounded up to certain point can be compared.
+ 
+
+# Question 2
+
+## 2-1.
+
+```{r}
+derivative <- function(x) {
+  eps <- 10^(-15)
+  res <- ((x+eps)-x)/eps
+  return(res)
+}
+```
+
+## 2-2.
+
+```{r}
+derivative(1)
+derivative(100000)
+```
+
+## 2-3.
+
+ By running the code, above results are returned. Since the original function is $f(x) = x$, mathematical results of both are expected to be $1$. However, neither of them returns $1$.
+ 
+ For `derivative(1)`, expected result is not returned because the computer stores data with binary system, using mentissa exponent. The calculation in the function is done with the numbers stored in binary system, which leads to the answer that is not mathematically expected.
+ 
+ For `derivative(100000)`, expected result is not returned because of underflow. Since $100,000$ is very big number compare to `eps` in the function, while the computer stores the data to calculate `((x+eps)-x)/eps`, where $x = 100,000$, significant digits of `eps` on numerator are lost so that the numerator becomes $0$; which results in final output 0.
+ 
+ 
+# Question 3
+
+## 3-1.
+
+```{r}
+myvar <- function(X) {
+  n <- length(X)
+  res <- (sum(X^2) - ((sum(X)^2)/n))/(n-1)
+  return(res)
+}
+```
+
+## 3-2.
+
+```{r}
+set.seed(12345)
+x <- rnorm(10000, mean=10^8, sd=1)
+```
+
+## 3-3.
+
+```{r, echo=FALSE, message=FALSE, warning=FALSE}
+y <- c()
+
+for (i in (1:length(x))) {
+  ones <- x[1:i]
+  res <- myvar(ones) - var(ones)
+  y <- append(y, res)
+}
+
+y <- y[2:length(y)]
+ress <- data.frame(x=2:length(x), y=y)
+
+library(ggplot2)
+ggplot(data=ress, mapping=aes(x=x, y=y)) + geom_point(colour="black", 
+        size=1) + labs(title="Relationship between Y and i",
+            x = "Values of i", y="Values of Y")
+```
+
+ According to the above plot showing the relationship between Y and i, indicating the result returned from `myvar` function and `var` function are different. ++++++++++++++++++++++++++ can you explain the behavior?
+ 
+## 3-4.
+
+ Better code that returns the same result as var
+ 
+ 
+# Question 4.
+
+## 4-1.
+
+```{r}
+setwd("C:/Users/Jooyoung/Documents/Computational Stat/732A90_VT2020_Materials")
+data <- read.csv("tecator.csv")
+# remove sample number for convenience
+data <- data[,-1]
+```
+
+## 4-2.
+
+```{r}
+X <- as.matrix(data[,-102])
+Y <- as.matrix(data[,102])
+colnames(Y) <- "Protein"
+A <- t(X) %*% X 
+b <- t(X) %*% Y
+```
+
+```{r, echo=FALSE}
+cat("To check if the calculation worked, only parts of A and b are printed as follows.", "\n", "\n")
+cat("First Three Rows and Columns of Computed A: ", "\n")
+A[1:3, 1:3]
+cat("\n","First Three Rows of Computed b: ", "\n")
+as.matrix(b[1:3,])
+```
+
+## 4-3.
+
+```{r, error=TRUE}
+solve(A,b)
+```
+
+ When `solve` function is used, above error is returned. This is because the matrix A is singular, meaning that some attributes of the data are very likely to be correlated.
+ 
+## 4-4.
+
+```{r, hide=TRUE, eval=FALSE, echo=FALSE}
+kappa(A)
+```
+
+ The function `kappa` returns the condition number of a regular matrix. Condition number represents how much the output value of the function can change for a small change in the input argument; this is used to measure how sensitive a function is to changes or errors in the input. [https://en.wikipedia.org/wiki/Condition_number]
+ 
+ According to the result above, condition number of the matrix A is `r kappa(A)`. This indicates the output is massively affected by a small change or error in the matrix A, which means the matrix A is unstable and  ill-conditioned that leads to error in using `solve` function. The reciprocal condition number `r 1/kappa(A)`, which is very close to zero as well, also explains that the matrix A is ill-conditioned.
+ 
+## 4-5.
+
+```{r, echo=FALSE, eval=FALSE}
+scale_X <- scale(X)
+scale_Y <- scale(Y)
+scale_A <- t(scale_X) %*% scale_X
+scale_b <- t(scale_X) %*% scale_Y
+#solve(scale_A, scale_b)
+kappa(scale_A)
+```
+
+ When the data is scaled, `solve` function returns a matrix without any visible error. The condition number of the matrix A is returned to be `r kappa(scale_A)`, which is definitely smaller than the one from unscaled data, also explains why the `solve` function worked. With the scaled data, new matrix `A` is not ill-conditioned that the generic function in R could solve the problem with the given inputs.
