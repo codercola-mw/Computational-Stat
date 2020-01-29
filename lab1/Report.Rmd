@@ -118,11 +118,38 @@ ggplot(data=ress, mapping=aes(x=x, y=y)) + geom_point(colour="black",
             x = "Values of i", y="Values of Y")
 ```
 
- According to the above plot showing the relationship between Y and i, indicating the result returned from `myvar` function and `var` function are different. ++++++++++++++++++++++++++ can you explain the behavior?
+ According to the above plot showing the relationship between Y and i, indicating the result returned from `myvar` function and `var` function are different.
  
 ## 3-4.
 
- Better code that returns the same result as var
+```{r, echo=FALSE}
+# Young's algorithm
+
+## v_x is a numerical vector of length greater than 2
+## this function calculates the sample variance 
+## using the Youngs and Cramer algorithm
+var_YC<-function(v_x){
+T<-v_x[1]
+RSS<-0
+n<-length(v_x)
+for (j in 2:n){
+  T<-T+v_x[j]
+  RSS<-RSS+((j*v_x[j]-T)^2)/(j*(j-1))
+}
+RSS/(n-1)
+}
+
+X=0
+for( i in (1:length(x)) ){
+  X = x[1:i]
+  Y[i]=var_YC(X)-var(X)
+}
+
+plot(x=(1:length(x)), y=Y, xlab="Values of i", ylab="Modified Y", main="Relationship between modified Y and i")
+
+```
+
+ By using Young-Cramar Algorithm as above, modified variance is manually calculated. It still returns somewhat different value to `var`, but such differences are very close to zero.
  
  
 # Question 4.
