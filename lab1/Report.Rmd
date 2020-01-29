@@ -1,7 +1,7 @@
 ---
 title: "Computational Statistics Lab1"
 author: "Jooyoung Lee, Vasileia Kampouraki, Weng Hang Wong"
-date: '2020 1 27 '
+date: '2020 1 29 '
 output: pdf_document
 ---
 
@@ -33,7 +33,7 @@ if (x1-x2 == 1/2) {
 
  Mathematically, both snippets are expected to return the same result, "Subtraction is correct". However, while the second one prints expected result, the first one returns "Subtraction is wrong" instead.
  
- This is related to rounding problem. In binary computer system, none of fractions, except the ones having $2$ as its denominator, has a finite decimals. Rationals with infinite decimals are rounded towards the nearest computer float so that usual mathematical laws do not hold. However, for the second snippet, since `x2 <- 1/2`, which is of finite decimals, the code returns expected mathematical result.
+ This is related to rounding problem. In binary computer system, none of fractions, except the ones having a number that is the power of $2$ as its denominator, has a finite decimals. Rationals with infinite decimals are rounded towards the nearest computer float so that usual mathematical laws do not hold. However, for the second snippet, since `x2 <- 1/2`, which is of finite decimals, the code returns expected mathematical result.
  
 ## 1-2.
 
@@ -48,7 +48,7 @@ if (isTRUE(all.equal(x1-x2,1/12))) {
 }
 ```
 
- The function `all.equal` is used; according to its description in R Documentation, this function is to 'test if two objects are nearly equal'. By using this function, two values that are rounded up to certain point can be compared.
+ The function `all.equal` is used; according to its description in R Documentation, this function is to 'test if two objects are nearly equal'. By using this function, two values, which are rounded up to certain point, can be compared and return the expected result.
  
 
 # Question 2
@@ -74,9 +74,9 @@ derivative(100000)
 
  By running the code, above results are returned. Since the original function is $f(x) = x$, mathematical results of both are expected to be $1$. However, neither of them returns $1$.
  
- For `derivative(1)`, expected result is not returned because the computer stores data with binary system, using mentissa exponent. The calculation in the function is done with the numbers stored in binary system, which leads to the answer that is not mathematically expected.
+ For `derivative(1)`, expected result is not returned because the computer stores data with binary system, using mentissa and exponent. The calculation in the function is done with the numbers stored in binary system, which leads to the answer that is not mathematically expected.
  
- For `derivative(100000)`, expected result is not returned because of underflow. Since $100,000$ is very big number compare to `eps` in the function, while the computer stores the data to calculate `((x+eps)-x)/eps`, where $x = 100,000$, significant digits of `eps` on numerator are lost so that the numerator becomes $0$; which results in final output 0.
+ For `derivative(100000)`, expected result is not returned because of underflow. Since $100,000$ is very big number compare to `eps` in the function, while the computer stores the data to calculate `((x+eps)-x)/eps`, where $x = 100,000$, significant digits of `eps` on numerator are lost so that the numerator becomes $0$; this results in final output 0.
  
  
 # Question 3
@@ -118,7 +118,7 @@ ggplot(data=ress, mapping=aes(x=x, y=y)) + geom_point(colour="black",
             x = "Values of i", y="Values of Y")
 ```
 
- According to the above plot showing the relationship between Y and i, indicating the result returned from `myvar` function and `var` function are different.
+ It is expected that $y_{i}$ to be 0 for each i as `myvar` for computing the variance theoretically would give the same results as the built-in function `var`. However, the plot shows that the results returned from `myvar` function and `var` function are different. Such differences occur because of the floating point system used in R, where the numbers get rounded and stored in binary system.
  
 ## 3-4.
 
@@ -142,14 +142,14 @@ RSS/(n-1)
 X=0
 for( i in (1:length(x)) ){
   X = x[1:i]
-  Y[i]=var_YC(X)-var(X)
+  y[i]=var_YC(X)-var(X)
 }
 
-plot(x=(1:length(x)), y=Y, xlab="Values of i", ylab="Modified Y", main="Relationship between modified Y and i")
+plot(x=(1:length(x)), y=y, xlab="Values of i", ylab="Modified Y", main="Relationship between modified Y and i")
 
 ```
 
- By using Young-Cramar Algorithm as above, modified variance is manually calculated. It still returns somewhat different value to `var`, but such differences are very close to zero.
+ By using Young-Cramer algorithm, modified variance is manually calculated. It still returns somewhat different value to `var`, but such differences are very close to zero and therefore negligible.
  
  
 # Question 4.
@@ -157,20 +157,18 @@ plot(x=(1:length(x)), y=Y, xlab="Values of i", ylab="Modified Y", main="Relation
 ## 4-1.
 
 ```{r}
-setwd("C:/Users/Jooyoung/Documents/Computational Stat/732A90_VT2020_Materials")
-data <- read.csv("tecator.csv")
-# remove sample number for convenience
-data <- data[,-1]
+data <- read.csv("C:/Users/Jooyoung/Documents/Computational Stat/732A90_VT2020_Materials/tecator.csv")
 ```
 
 ## 4-2.
 
 ```{r}
-X <- as.matrix(data[,-102])
-Y <- as.matrix(data[,102])
-colnames(Y) <- "Protein"
-A <- t(X) %*% X 
-b <- t(X) %*% Y
+X <- data[-c(1,103)] #observations
+X <- as.matrix(X)
+y <- data[103]    #target
+y <- as.matrix(y)
+A <- t(X)%*%X
+b <- t(X)%*%y
 ```
 
 ```{r, echo=FALSE}
@@ -195,19 +193,32 @@ solve(A,b)
 kappa(A)
 ```
 
- The function `kappa` returns the condition number of a regular matrix. Condition number represents how much the output value of the function can change for a small change in the input argument; this is used to measure how sensitive a function is to changes or errors in the input. [https://en.wikipedia.org/wiki/Condition_number]
+ The function `kappa` returns the condition number of a regular matrix. Condition number represents how much the output value of the function can change for a small change in the input argument; this is used to measure how sensitive a function is to changes or errors in the input. [https://en.wikipedia.org/wiki/Condition_number] $\kappa$ is calculated by using following function:
  
- According to the result above, condition number of the matrix A is `r kappa(A)`. This indicates the output is massively affected by a small change or error in the matrix A, which means the matrix A is unstable and  ill-conditioned that leads to error in using `solve` function. The reciprocal condition number `r 1/kappa(A)`, which is very close to zero as well, also explains that the matrix A is ill-conditioned.
+ $\kappa(A)$ = $\left\|A^{-1}\right\| \left\|A\right\|$
+ 
+ According to the result above, condition number of the matrix A is `r kappa(A)`. This indicates the output is massively affected by a small change or error in the matrix A, which means the matrix A is unstable and  ill-conditioned that leads to error in using `solve` function. The reciprocal condition number `r 1/kappa(A)`, which is very close to zero as well, also explains that the matrix A is ill-conditioned. In this case, huge condition number of A is an indication of multicollinearity.
  
 ## 4-5.
 
-```{r, echo=FALSE, eval=FALSE}
-scale_X <- scale(X)
-scale_Y <- scale(Y)
-scale_A <- t(scale_X) %*% scale_X
-scale_b <- t(scale_X) %*% scale_Y
-#solve(scale_A, scale_b)
-kappa(scale_A)
+```{r, echo=FALSE}
+data1 <- as.data.frame(scale(data))
+Xnew <- data1[-c(1,103)] #observations
+Xnew <- as.matrix(Xnew)
+ynew <- data1[103]    #target
+ynew <- as.matrix(ynew)
+A1 <- t(Xnew)%*%Xnew
+b1 <- t(Xnew)%*%ynew
+beta1 <- solve(A1)%*%b1
+cat("Condition Number of the Scaled Data: ", "\n")
+kappa(A1)
 ```
 
- When the data is scaled, `solve` function returns a matrix without any visible error. The condition number of the matrix A is returned to be `r kappa(scale_A)`, which is definitely smaller than the one from unscaled data, also explains why the `solve` function worked. With the scaled data, new matrix `A` is not ill-conditioned that the generic function in R could solve the problem with the given inputs.
+ When the data is scaled, `solve` function returns a matrix without any visible error. The condition number of the matrix A is returned to be `r kappa(A1)`, which is definitely smaller than the one from unscaled data, explains why the `solve` function worked. With the scaled data, new matrix `A` is not ill-conditioned that the generic function in R could solve the problem with the given inputs. This indicates that multicollinearity can be eliminated by scaling the data.
+ 
+ 
+# Appendix
+
+```{r ref.label=knitr::all_labels(), echo=T, eval=F}
+
+```
