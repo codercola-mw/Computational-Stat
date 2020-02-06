@@ -69,8 +69,8 @@ that is around 11 so we will use the code below too check it precisely.
 ```{r}
 which.min(MSE)
 MSE[which.min(MSE)]
-##117-122   #found by looking at the result, correct code here
-lambdas[c(117:122)]
+check <- (MSE==min(MSE))
+which(check %in% TRUE)
 ```
 
 We can see from the code that the minimum (optimal) MSE value is 0.131047 and 
