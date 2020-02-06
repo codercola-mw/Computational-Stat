@@ -42,6 +42,10 @@ ggplot(data = MSE_vect_df, mapping=aes(x=Lambda, y=MSE)) +
 cat("The minimum MSE, ", MSE_vect[which.min(MSE_vect)], 
     ", is obtained when the value of lambda equals ", 
     lambda_vect[which.min(MSE_vect)], "\n")
+## but the one mentioned above is the first lambda that obtains minimum MSE.
+## to find all indicies that has the minimum MSE, run:
+check <- (MSE_vect==min(MSE_vect))
+which(check %in% TRUE)
 ### number of evaluations required:
 length(lambda_vect)
 
