@@ -13,7 +13,7 @@ output: pdf_document
 
 ```{r}
 RNGversion("3.5.1")
-data <- read.csv2("~/Computational Stat/732A90_VT2020_Materials/mortality_rate.csv")
+data <- read.csv2("~/Desktop/732A90_VT2020_Materials/mortality_rate.csv")
 data$LMR <- log(data$Rate)
 n=dim(data)[1]
 set.seed (123456)
@@ -111,7 +111,7 @@ optim(35,myMSE,NULL,method = "BFGS",pars=list)
 ### 1. Load the data to R environment.
 
 ```{r}
-load("~/Computational Stat/732A90_VT2020_Materials/data.RData",verbose = T)
+load("~/Desktop/732A90_VT2020_Materials/data.RData",verbose = T)
 ```
 
 
@@ -163,14 +163,14 @@ $- \frac{n}{\sigma} + \frac{1}{\sigma^3}\sum_{i=1}^{n}(x_{i}-\mu)^2 \\ \Rightarr
 
 ### 3.
 
-```{r include=FALSE}
+```{r}
 n <- length(data)
 mu_ml <- sum(data)/n
 sigma_ml <- sqrt(sum((data-mu_ml)^2)/n)
 mu_ml
 sigma_ml
 
-
+### defining function for -log-likelihood
 par=c(0,1)
 minus_llik <- function(par, data) {
   n <- length(data)
@@ -180,7 +180,7 @@ minus_llik <- function(par, data) {
     ((-1/(2*(sigma^2)))*sum((data-mu)^2))
   return(-llik)
 }
-minus_llik(par,data)
+
 ### defining function for gradient
 grad <- function(par, data) {
   n <- length(data)
