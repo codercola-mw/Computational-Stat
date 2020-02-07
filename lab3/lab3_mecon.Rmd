@@ -1,0 +1,69 @@
+---
+title: "lab3"
+author: "Weng Hang Wong"
+date: "2/7/2020"
+output: pdf_document
+---
+
+# Question1
+
+### 1. Import necessary information to R.
+```{r}
+RNGversion("3.5.1")
+
+data=readxl::read_xls("~/Desktop/732A90_VT2020_Materials/population.xls")
+
+### clean the data
+data = data[-(1:8),]
+data$`Statistics Sweden`= as.integer(data$`Statistics Sweden`)
+data=data[-which(data$`Statistics Sweden`<100),]
+data$Population=as.integer(data$...3)
+data$city=data$...2
+```
+
+### 2. Use a uniform random number generator to create a function that selects 1 city from the whole list by the probability scheme offered above
+```{r}
+select_city <- function(data){
+  rand_num <- runif(1, min=0, max=sum(data$Population))
+  pop=0
+  city_pop = cbind(City=data$city, Population=data$Population)
+
+  for(i in 1:nrow(data)){
+    pop = data$Population[i]+pop
+    if (pop >= rand_num){return (city_pop[i,])}
+  }
+}
+```
+
+### 3.
+```{r}
+cities=data.frame(City=vector(length=20),Population=vector(length=20))
+
+for(i in 1:20){
+  cities[i,] <- select_city(data)
+}
+### remove city from the list
+new_city_pop = city_pop[-which(city_pop[,1] %in% cities[,1]),]
+```
+
+
+### 4. Which cities are selected
+```{r}
+### 20 selected cities
+cities
+
+### size of the city
+size = sum(cities[,2])
+
+### 20 city propotion 
+selected_prop = size / sum(data$Population)
+selected_prop
+```
+
+### 5. plot
+```{r}
+hist(data$Population,main="Population of all Cities",xlab="Cities",
+     border="black", col="pink",breaks=30, ylim=c(0,200))
+hist(cities[,2],main="Population of all 20 selected cities",xlab="Cities",
+     border="black", col="pink",breaks=30)
+```
