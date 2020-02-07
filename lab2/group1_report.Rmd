@@ -1,6 +1,6 @@
 ---
-title: "Lab 2"
-author: "Vasileia Kampouraki"
+title: "Computational Statistics Lab 2"
+author: "Jooyoung Lee, Vasileia Kampouraki, Weng Hang Wong"
 date: "30/1/2020"
 output: pdf_document
 ---
@@ -13,7 +13,7 @@ output: pdf_document
 
 ```{r}
 RNGversion("3.5.1")
-data <- read.csv2("~/Desktop/Computational-Stat/lab2/mortality_rate.csv")
+data <- read.csv2("~/Computational Stat/732A90_VT2020_Materials/mortality_rate.csv")
 data$LMR <- log(data$Rate)
 n=dim(data)[1]
 set.seed (123456)
@@ -25,9 +25,10 @@ test= data[-id,]
 
 ### 2. Write your own function **myMSE()** that for given parameters $\lambda$ and list **pars** containing vectors X, Y, Xtest, Ytest fits a LOESS model with response Y and predictor X using loess() function with penalty $\lambda$ (parameter enp.target in loess()) and then predicts the model for Xtest. The function should compute the predictive MSE, print it and return as a result. The predictive MSE is the mean square error of the prediction on the testing data. It is defined by the following Equation (for you to implement):
 
-$\text {Predictive MSE} = \frac{1}{length(test)}$$\sum_{\text {i_{th} element in the test} } (Ytest[i] - fYpred(X[i]) )^2$
+ Predictive MSE = $\frac{1}{length(test)}$ $\sum_{\text {i}}$ $(Ytest[i] - fYpred(X[i]) )^2$
 
-where $fYpred(X[i])$ is the predicted value of Y if X is X[i].
+where $fYpred(X[i])$ is the predicted value of Y if X is X[i], such that i is the the index number of elements in the test data set.
+
 Read on R's functions for prediction so that you do not have to implement it yourself.
 
 ```{r}
@@ -63,19 +64,17 @@ for (i in 1:length(lambdas)){
 plot(lambdas,MSE, main="Plot of MSEs vs lambdas")
 ```
 
-We can see from the plot that the minimum MSE is given for a value of $\lambda$
-that is around 11 so we will use the code below too check it precisely.
+ By investigating the plot, it is possible to find that the minimum MSE is given for a value of $\lambda$ which is around 11. Further investigation is performed as below too check it precisely.
 
 ```{r}
-which.min(MSE)
 MSE[which.min(MSE)]
 check <- (MSE==min(MSE))
 which(check %in% TRUE)
 ```
 
-We can see from the code that the minimum (optimal) MSE value is 0.131047 and 
-we obtain this value of MSE when $\lambda$= 11.7,11.8,11.9,12.0,12.1 and 12.2
-The number of evaluations needed to find the optimal values of $\lambda$ is 400,as first we had to compute the MSE values for all the 400 different $\lambda$ and then we extract the optimal one who gave the minimum MSE value(in our case more than one gave minimum value).
+ According to the result from the above code, the minimum (optimal) MSE value is 0.131047 and such value of MSE is obtained when $\lambda$= 11.7,11.8,11.9,12.0,12.1 and 12.2. Multiple $\lambda$s are returned, because of rounding issue in the computer.
+ 
+ The number of evaluations needed to find the optimal values of $\lambda$ is 400, as first, the MSE values for all the 400 different $\lambda$ has to be computed and then the optimal one that gives the minimum MSE value is extracted (in above case, more than one gave minimum value).
 
 
 
@@ -85,11 +84,11 @@ The number of evaluations needed to find the optimal values of $\lambda$ is 400,
 #1D optimization
 optimize(myMSE,c(0.1,40),pars=list,tol=0.01)
 #number of evaluations
-#??? any code suggestions to find the number? found it by counting
 ```
 
-We can observe that using **tol=0.01** we extract slightly different value for the minimum MSE (0.1321441) compared to the one found using the command **MSE[which.min(MSE)]**.
-The function was evaluated 18 times which is way lesser than in step 4(400 evaluations) and gave almost same result.
+ By using **tol=0.01** slightly different value for the minimum MSE (0.1321441) is obtained compared to the one found using the command **MSE[which.min(MSE)]**.
+ 
+ The function was evaluated 18 times which is way lesser than in step 4(400 evaluations) and gave very similar result.
 
 ### 6. Use optim() function and BFGS method with starting point $\lambda$ = 35 to find the optimal $\lambda$ value. How many myMSE() function evaluations were required (read ?optim)? Compare the results you obtained with the results from step 5 and make conclusions.
 
@@ -98,13 +97,9 @@ The function was evaluated 18 times which is way lesser than in step 4(400 evalu
 optim(35,myMSE,NULL,method = "BFGS",pars=list)
 ```
 
-**optim()** gave as an optimal value of MSE the value 0.1719996  and the function was evaluated only once.
-The optimal value of MSE differs quite a lot compared to the one obtained in
-step 5 (0.1321441) and doesn't seem accurate. 
-What **optim()** did was to find a local minimum and stop,while the **optimize** function found the global minimum.
-Generally, trying to fing global optima can be computationally expensive as it requires in many cases a large number of iterations. 
+ **optim()** returned an optimal value of MSE, the value 0.1719996  and the function was evaluated only once. The optimal value of MSE differs quite a lot compared to the one obtained in step 5 (0.1321441) and doesn't seem accurate. What **optim()** did was to find a local minimum and stop, while the **optimize** function found the global minimum. Generally, trying to fing global optima can be computationally expensive as it requires in many cases a large number of iterations. 
 
-In conclusion, in  our case step 5 gave better results as it found almost precisely the optimal value of MSE and was relatively quick (18 evaluations).
+ In conclusion, according to above investigations, step 5 gave better results as it found almost precisely the optimal value of MSE and was relatively quick (18 evaluations).
 
 
 # Question 2: Maximizing likelihood
@@ -116,48 +111,50 @@ In conclusion, in  our case step 5 gave better results as it found almost precis
 ### 1. Load the data to R environment.
 
 ```{r}
-load("~/Desktop/732A90_VT2020_Materials/data.RData",verbose = T)
+load("~/Computational Stat/732A90_VT2020_Materials/data.RData",verbose = T)
 ```
 
 
 ### 2.
 
-Here we will present the theory behind the maximum likelihood estmation for a normal distribution with parameters $\mu$,$\sigma$.
+ Here, the theory behind the maximum likelihood estmation for a normal distribution with parameters $\mu$,$\sigma$ will be presented.
 
 
 **Probability density function**
 
+ The probability density function of Normal distribution is:
 
-The probability density function of Normal distribution is:
-           $f(x)=\frac{1}{\sigma\sqrt(2\pi)}e^{-\frac{(x-\mu)^2}{2\sigma^2}}$
+ $f(x)=\frac{1}{\sigma\sqrt(2\pi)}e^{-\frac{(x-\mu)^2}{2\sigma^2}}$
 
-The assumptions for the maximum likelihood estimation are that the data are
-independently and identically distributed (i.i.d.). 
+ The assumptions for the maximum likelihood estimation are that the data are independently and identically distributed (i.i.d.). 
 
-Let $\theta=\{\mu,\sigma\}$ be the parameters set.
+ Let $\theta=\{\mu,\sigma\}$ be the parameters set.
 
-Our goal is to maximize the probability density which can be written by multiplying each probability density, under the assumption of independency,as follows:
+ The goal here is to maximize the probability density, which can be written by multiplying each probability density, under the assumption of independency.
 
 
-$f(x_{1},...,x_{n}|\theta) = f(x_{1}|\theta) \cdot f(x_{2}|\theta) \cdot ...\cdot f(x_{n}|\theta) \\= \prod_{i=1}^{n} f(x_{i}|\theta)$
+ $f(x_{1},...,x_{n}|\theta)$ = $f(x_{1}|\theta) \cdot f(x_{2}|\theta) \cdot ...\cdot f(x_{n}|\theta)$ = $\prod_{i=1}^{n} f(x_{i}|\theta)$
 
 **Likelihood and log-likelihood functions**
 
 The likelihood function is:
-$L(x_{1},...,x_{n}|\theta)=f(x_{1},...,x_{n}|\theta)\\=$ $\frac{1}{(2\pi\sigma^2)^\frac{n}{2}}e^{-\frac{\sum_{i=1}^{n}(x_{i}-\mu)^2}{2\sigma^2}}$
 
-and the log-likelihood function is:
-$l(x_{1},...,x_{n}|\theta)=log(L(x_{1},...,x_{n}|\theta))\\=$ $-\frac{n}{2}ln(2\pi) - \frac{n}{2}ln(\sigma^2) - \frac{1}{2\sigma^2}\sum_{i=1}^{n}(x_{i}-\mu)^2$
-which we derive by applying the logarithm function on the likelihood function. 
+ $L(x_{1},...,x_{n}|\theta)=f(x_{1},...,x_{n}|\theta)\\$ = $\frac{1}{(2\pi\sigma^2)^\frac{n}{2}}e^{-\frac{\sum_{i=1}^{n}(x_{i}-\mu)^2}{2\sigma^2}}$
+
+ and the log-likelihood function is:
+ 
+ $l(x_{1},...,x_{n}|\theta)=log(L(x_{1},...,x_{n}|\theta))\\$ =  $-\frac{n}{2}ln(2\pi) - \frac{n}{2}ln(\sigma^2) - \frac{1}{2\sigma^2}\sum_{i=1}^{n}(x_{i}-\mu)^2$
+ 
+ which is derived by applying the logarithm function on the likelihood function. 
 
 *Note:* The ml estimators will be symbolized as $\hat{\mu}$ and $\hat{\sigma}$.
 
 
 **Maximum likelihood estimators for $\mu$ and $\sigma$**
 
-The maximum likelihood estimators for mean and variance are derived by setting the derivative of the log-likelihood function with respect to $\mu$ and $\sigma$,respectvely, equal to zero.
+ The maximum likelihood estimators for mean and variance are derived by setting the derivative of the log-likelihood function with respect to $\mu$ and $\sigma$, respectvely, equal to zero.
 
-$0=\frac{\partial l(x_{1},...,x_{n}|\theta)}{\partial \mu} \\=$ $-\frac{1}{2\sigma^2}\sum_{i=1}^{n}-2(x_{i}-\mu) \\=\frac{1}{\sigma^2}\sum_{i=1}^{n}(x_{i}-\mu) \\$ $\Rightarrow\ \frac{1}{\sigma^2}\sum_{i=1}^{n}(x_{i}-\mu)=0 \\ \Rightarrow \hat{\mu}= \frac{1}{n}\sum_{i=1}^{n}x_{i}$
+$0=\frac{\partial l(x_{1},...,x_{n}|\theta)}{\partial \mu} \\$ = $-\frac{1}{2\sigma^2}\sum_{i=1}^{n}-2(x_{i}-\mu) \\$ = $\frac{1}{\sigma^2}\sum_{i=1}^{n}(x_{i}-\mu) \\$ $\Rightarrow\ \frac{1}{\sigma^2}\sum_{i=1}^{n}(x_{i}-\mu)=0 \\ \Rightarrow \hat{\mu}= \frac{1}{n}\sum_{i=1}^{n}x_{i}$
 
 $0=\frac{\partial l(x_{1},...,x_{n}|\theta)}{\partial \sigma} \\=$ 
 $- \frac{n}{\sigma} + \frac{1}{\sigma^3}\sum_{i=1}^{n}(x_{i}-\mu)^2 \\ \Rightarrow - \frac{n}{\sigma} +$ $\frac{1}{\sigma^3}\sum_{i=1}^{n}(x_{i}-\mu)^2=0 \\ \Rightarrow \sum_{i=1}^{n}(x_{i}-\mu)^2 =$ $n\sigma^2 \\ \Rightarrow \hat{\sigma^2}= \frac{1}{n}\sum_{i=1}^{n}(x_{i}-\mu)^2$
@@ -205,7 +202,8 @@ BFGS_with <- optim(par=c(0,1), fn=minus_llik, method="BFGS", data=data, gr=grad)
 ```
 
 ### why is it bad to use just likelihood?
-Since calculating the derivative of likelihood is more complicated and costly. Using log-likelihood in the function we will have the same result while the deviative of log-likelihood is simplier and easier than likelihood.
+
+ Since calculating the derivative of likelihood is more complicated and costly. Using log-likelihood in the function we will have the same result while the deviative of log-likelihood is simplier and easier than likelihood.
 
 ### 4.
 
@@ -214,10 +212,18 @@ Both the CG and BFGS algorithms converge in all cases.
 
 ### Optimal values and function and gradients were required.
 
-The real mean and standard deviation from the data set are 1.275528 and 2.005976 respectively.
+ The real mean and standard deviation from the data set are 1.275528 and 2.005976 respectively.
 
-When we use the Conjugate Gradient method *without specified gradient*, we have the optimal values: $\mu$=1.275528, and $\sigma$=2.005977 using 297 function and 45 gradient as evaluations, of which the optimal parameters are closely the same with the real values, however, when it *specified with gradient*, we have $\mu$=1.678282 and $\sigma$=1.956658 using 283 function and 29 gradient, even though this result is close but worse than the above method without gradient.
+ When the Conjugate Gradient method is used *without specified gradient*, the optimal values are: $\mu$=1.275528, and $\sigma$=2.005977 using 297 function and 45 gradient as evaluations, of which the optimal parameters are closely the same with the real values. However, when it *specified with gradient*, the result returned $\mu$=1.678282 and $\sigma$=1.956658 using 283 function and 29 gradient, even though this result is close but worse than the above method without gradient.
 
-The same situation also applied to BFCS method, when we *unspecified the gradient* we have the optimal parameters of $\mu$=1.275528, $\sigma$=2.005977 using 37 function and 15 gradient. *Specified gradient* in BFCS, we have $\mu$=1.299622 and $\sigma$=1.900686 using 86 function and 13 gradient.
+ The same situation also applied to BFCS method, when the function is run with *unspecified the gradient* the optimal parameters are $\mu$=1.275528, $\sigma$=2.005977 using 37 function and 15 gradient. But with *specified gradient* in BFCS, $\mu$=1.299622 and $\sigma$=1.900686 using 86 function and 13 gradient are returend.
 
-We would recommend the BFCS without specified the gradient, by the result, it has the same accuracy result compare to the CG method without gradient, however, since the BFCS cost less iteration and use fewer step for convergence,s it is more efficient.
+ According to the above result, the BFCS without specified the gradient would be recommended for having the same accuracy result compare to the CG method without gradient. Furthermore, since the BFCS cost less iteration and use fewer steps for convergence, it is more efficient.
+ 
+
+
+# Appendix
+
+```{r ref.label=knitr::all_labels(), echo=T, eval=F}
+
+```
