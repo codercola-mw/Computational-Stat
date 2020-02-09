@@ -1,0 +1,167 @@
+---
+title: ''
+author: "Vasileia Kampouraki"
+date: "7/2/2020"
+output: pdf_document
+---
+
+# Question 1: Cluster sampling
+
+**An opinion poll is assumed to be performed in several locations of Sweden by sending interviewers to this location. Of course, it is unreasonable from the financial point of view to visit each city. Instead, a decision was done to use random sampling without replacement with the probabilities proportional to the number of inhabitants of the city to select 20 cities. Explore the file population.xls. Note that names in bold are counties, not cities.**
+
+### 1. Import necessary information to R.
+
+```{r echo=F, include=F}
+#RNGversion(min(as.character(getRversion()),"3.6.2"))
+RNGversion("3.5.1")
+library(readxl)
+data <- read_xls("C:/Users/Vaso/Desktop/data computational/population.xls")
+data1 <- data[-c(1:8),]
+data1$`Statistics Sweden`= as.integer(data1$`Statistics Sweden`)
+data1=data1[-which(data1$`Statistics Sweden`<100),]
+data1$Population=as.integer(data1$...3)
+data1$city=data1$...2
+
+```
+
+
+### 2. Use a uniform random number generator to create a function that selects 1 city from the whole list by the probability scheme offered above (do not use standard sampling functionspresent in R).
+
+
+```{r}
+select_city <- function(data){
+  rand_num <- runif(1, min=0, max=sum(data$Population))
+  pop=0 #population
+  city_pop = cbind(City=data$city, Population=data$Population)
+  
+  for(i in 1:nrow(data)){
+    pop = data$Population[i] + pop ## why add the previous population?
+    if (pop >= rand_num)
+      return (city_pop[i,])
+  }
+}
+```
+
+
+### 3. Use the function you have created in step 2 as follows:
+
+(a) Apply it to the list of all cities and select one city
+(b) Remove this city from the list
+(c) Apply this function again to the updated list of the cities
+(d) Remove this city from the list
+(e) ... and so on until you get exactly 20 cities.
+
+
+```{r}
+cities=data.frame(City=vector(length=20), Population=vector(length=20))
+
+for(i in 1:20){
+  cities[i,] <- select_city(data1)
+}
+
+```
+
+
+
+### 5. Plot one histogram showing the size of all cities of the country. Plot another histogram showing the size of the 20 selected cities. Conclusions?
+
+```{r}
+hist(data1$Population, main = "Size of all cities of Sweden", ylim = c(0,300),xlab="Cities",ylab="Population")
+
+
+hist(data1$Population, main = "Size of selected cities", ylim = c(0,300),xlab="Cities",ylab="Population")
+
+```
+
+
+# Question 2: Different distributions
+
+**The double exponential (Laplace) distribution is given by formula: $\\DE(\mu,\alpha) = \frac{a}{2}exp(-a|x-\mu|)$**
+
+**1. Write a code generating double exponential distribution DE(0,1) from Unif(0, 1) by using the inverse CDF method. Explain how you obtained that code step by step. Generate 10000 random numbers from this distribution, plot the histogram and comment whether the result looks reasonable.**
+
+
+We want to generate 10000 random numbers from the double exponential distribution DE(0,1) using the inverse CDF method.
+The steps of the process will be presented below.
+
+1. The propability density function of ED(0,1) is:
+
+
+  $f_{x}x= \frac{1}{2}e^{-|x|}$
+
+and the Cumulative density function is:
+
+$F_{x}x= \begin{cases} 1-\frac{e^{-x}}{2}& x\geq0 \\$ $\frac{e^{x}}{2}& x\leq 0 \\ \end{cases}$
+
+Now we have to find the inverse CDF.
+
+$\underline{x\geq0:}$  
+
+$y= 1- \frac{e^{-x}}{2} \Rightarrow e^{-x} = 2(1-y) \Rightarrow \\$$x=-ln2(1-y)$, $\frac{1}{2} <y<1$
+
+$\underline{x<0:}$ 
+
+$y= \frac{e^{x}}{2} \Rightarrow e^{x} = 2y \Rightarrow \\$ $ x=ln2y$,  $0<y<\frac{1}{2}$
+
+
+Thus, we have that 
+
+
+$F^{-1}_{x}(y)= \begin{cases} ln2y  & 0<y<\frac{1}{2} \\$ $-ln2(1-y)&  \frac{1}{2} <y<1 \\ \end{cases}$
+
+
+Hence, if $U\sim U(0,1)$ then 
+
+
+$F^{-1}_{x}(U)= \begin{cases} ln2U  & 0<U<\frac{1}{2} \\$ $-ln2(1-U)&  \frac{1}{2} <U<1 \\ \end{cases}$
+
+= X $\sim$ E(0,1).
+
+
+
+We present also the algorithm for this simulation:
+
+
+$\underline{Algorithm:}$
+
+1) Generate U $\sim$ U(0,1)
+
+2) Find $F^{-1}_{x}(y)$
+
+3) X = $F^{-1}_{x}(U) \sim E(0,1)$
+
+
+```{r}
+set.seed(12345)
+rglaplace <- function(n){
+  
+  U <- runif(n,0,1)
+  X <- c()
+  for (i in 1:n){
+    if (U[i]< 0.5){
+     X[i] = log(2*U[i])
+    } else {
+      X[i] = - log(2*(1-U[i]))
+    }
+  }
+  return(X)
+  
+}
+
+#We will plot the density of E(0,1) to compare with the histogram
+library(smoothmest)
+#generate 10000 random numbers from Laplace(0,1)
+rl <- rdoublex(10000,0,1)
+d <- density(rl)
+
+par(mfrow=c(1,2))
+hist(rglaplace(10000),main = "Histogram of Laplace DE(0,1)",col="lightblue",breaks = 40,xlab = "Laplace(0,1)")
+plot(d,main = "Density of Laplace(0,1)",xlim= c(-6,6),col="red",xlab = "Laplace(0,1)")
+
+```
+
+To see if the histogram result looks reasonable we used package *smoothmest* to plot the probability density function of the double exponential distribution DE(0,1) and compare it to the histogram. As we see from the plots above, the histogram of the 10000 random numbers generated from U(0,1) using the inverse CDF method looks coming from the DE(0,1) distribution so the results that we obtain from our simulation seem to be correct.
+
+
+
+
