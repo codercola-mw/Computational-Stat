@@ -13,6 +13,7 @@ output: pdf_document
 
 ```{r echo=F, include=F}
 #RNGversion(min(as.character(getRversion()),"3.6.2"))
+set.seed(12345)
 RNGversion("3.5.1")
 library(readxl)
 data <- read_xls("C:/Users/Vaso/Desktop/data computational/population.xls")
@@ -30,7 +31,7 @@ data1$city=data1$...2
 
 ```{r}
 select_city <- function(data){
-  rand_num <- runif(1, min=0, max=sum(data$Population))
+  rand_num <- runif(1, min=0,max=sum(data$Population))
   pop=0 #population
   city_pop = cbind(City=data$city, Population=data$Population)
   
@@ -87,21 +88,33 @@ The steps of the process will be presented below.
 1. The propability density function of ED(0,1) is:
 
 
-  $f_{x}x= \frac{1}{2}e^{-|x|}$
+  $f_{x}(x)= \frac{1}{2}e^{-|x|}$
 
 and the Cumulative density function is:
 
-$F_{x}x= \begin{cases} 1-\frac{e^{-x}}{2}& x\geq0 \\$ $\frac{e^{x}}{2}& x\leq 0 \\ \end{cases}$
+For $\underline{x\geq0:}$
+
+$$F_{x}(x)= \int_{-\infty}^{x} \frac{1}{2}e^x = \frac{1}{2} e^x \Big|_ {-\infty}^x=\frac{1}{2}e^x$$
+
+For $\underline{x <0:}$
+
+$F_{x}(x)= \int_{-\infty}^{x}\frac{1}{2}e^{-x}$ $=\int_{-\infty}^{0}\frac{1}{2}e^{-x}$ $+ \int_{0}^{x} \frac{1}{2}e^{-x}$ $=\\ \frac{1}{2}(-e^x) \Big|_{-\infty}^0$ $+\frac{1}{2}(-e^x) \Big|_0^x$ $= \frac{1}{2} - \frac{1}{2}e^{-x}$ $+ \frac{1}{2} = 1 - \frac{1}{2}e^{-x}$
+
+
+So,
+
+
+$F_{x}(x)= \begin{cases} 1-\frac{e^{-x}}{2}& x\geq0 \\$ $\frac{e^{x}}{2}& x< 0 \\ \end{cases}$
 
 Now we have to find the inverse CDF.
 
 $\underline{x\geq0:}$  
 
-$y= 1- \frac{e^{-x}}{2} \Rightarrow e^{-x} = 2(1-y) \Rightarrow \\$$x=-ln2(1-y)$, $\frac{1}{2} <y<1$
+$y= 1- \frac{e^{-x}}{2} \Rightarrow e^{-x} = 2(1-y) \Rightarrow \\$ $x=-ln2(1-y)$, $\frac{1}{2} <y<1$
 
 $\underline{x<0:}$ 
 
-$y= \frac{e^{x}}{2} \Rightarrow e^{x} = 2y \Rightarrow \\$ $ x=ln2y$,  $0<y<\frac{1}{2}$
+$y= \frac{e^{x}}{2} \Rightarrow e^{x} = 2y \Rightarrow \\x=ln2y$,  $0<y<\frac{1}{2}$
 
 
 Thus, we have that 
@@ -131,8 +144,8 @@ $\underline{Algorithm:}$
 3) X = $F^{-1}_{x}(U) \sim E(0,1)$
 
 
-```{r}
-set.seed(12345)
+
+```{r echo=F}
 rglaplace <- function(n){
   
   U <- runif(n,0,1)
@@ -160,8 +173,107 @@ plot(d,main = "Density of Laplace(0,1)",xlim= c(-6,6),col="red",xlab = "Laplace(
 
 ```
 
-To see if the histogram result looks reasonable we used package *smoothmest* to plot the probability density function of the double exponential distribution DE(0,1) and compare it to the histogram. As we see from the plots above, the histogram of the 10000 random numbers generated from U(0,1) using the inverse CDF method looks coming from the DE(0,1) distribution so the results that we obtain from our simulation seem to be correct.
+To see if the histogram looks reasonable we used package *smoothmest* to plot the probability density function of the double exponential distribution DE(0,1) and compare it to the histogram. As we see from the plots above, the histogram of the 10000 random numbers generated from U(0,1) using the inverse CDF method looks distributed as DE(0,1) so the results that we obtain from our simulation seem to be correct.
 
 
+**2. Use the Acceptance/rejection method with DE(0,1) as a majorizing density to generate N(0,1) variables. Explain step by step how this was done. How did you choose constant c in this method? Generate 2000 random numbers N(0,1) using your code and plot the histogram. Compute the average rejection rate R in the acceptance/rejection procedure. What is the expected rejection rate ER and how close is it to R? Generate 2000 numbers from N(0,1) using standard rnorm() procedure, plot the histogram and compare the obtained two histograms.**
 
 
+### Acceptance/rejection method
+
+Let Y be a continuous random variable with pdf ${f_{Y}(y)}$ and we want to simulate values for another continuous random variable X with pdf $f_{X}(x)$.
+In our case $Y\sim DE(0,1)$ and $X\sim N(0,1)$.
+So,we want to simulate values of N(0,1) distribution using DE(0,1) distribution with the Acceptance/Rejection method.
+What we basically do is to simulate values of the DE(0,1) and then accept them or not as values of X based on a criterion.
+Let c be a constant, $\frac{f_{X}(y)}{f_{Y}(y)} \leq c, \forall y$
+
+$${f_{Y}(y)}= \frac{1}{2}e^{-|x|},x\epsilon \Re$$ and  $$f_{X}(x)= \frac {1}{\sqrt{2\pi}}  e^{-\frac{1}{2}x^2} , x\epsilon \Re$$
+
+
+$\underline{Algorithm:}$
+
+1) Produce a value of the random variable Y with pdf ${f_{Y}(y)}$
+
+2) Produce a random number $U\sim U(0,1)$
+
+3) If $U \leq \frac{f_{X}(y)}{cf_{Y}(y)}$ set X=Y else return to step 1.
+
+We want to generate 2000 random numbers N(0,1) so the steps of the algorithm will be executed until we get 2000 numbers.
+
+A value of X will be given for sure but what interests us as well is to get it as faster as possible, i.e. have an efficient algorithm.
+This is achieved when c is small, because the larger the c the bigger the rejection rate.
+
+To find c, we will derivate the ratio $\frac{f_{X}(y)}{f_{Y}(y)}$ and see for which value of x we get the maximum. Then we put this x into the ratio and this will be the c. 
+
+*Note:* Laplace is symmetric around zero so we will consider here that x>0 to simplify the derivation.
+
+
+$$(\frac{f_{X}(y)}{f_{Y}(y)})'=(\frac{2}{\sqrt{2\pi}} e^{x-\frac{1}{2}x^2})'=\frac{2}{\sqrt{2\pi}} e^{x-\frac{1}{2}x^2}(-x+1) = 0 \\ \Rightarrow  (-x+1) = 0 \Rightarrow x=1$$
+
+Now we put this x into the ratio and we get that $c=\frac{f_{X}(1)}{f_{Y}(1)}=$ $\frac{2}{\sqrt{2\pi}} e^{1-\frac{1}{2}}=$ $\frac{2}{\sqrt{2\pi}} e^{\frac{1}{2}} = 1.31$ (rounded in two decimals) which is the optimal value of c.
+
+```{r echo=F}
+#we have x in real numbers
+#range <- seq(-2,2,0.01)
+#c <- max(ddoublex(range,0,1)/dnorm(range,0,1)) gives around 1.25 but ill use 1.31 from mathematical solution by derivating
+
+accept_reject <- function(c,n){
+
+accepted <- 0
+rejected <- 0
+final <- c()
+
+  while (accepted<n){   #in the end we want 2000 accepted
+    Y <- rdoublex(1,0,1)  
+    U <- runif(1,0,1)
+    
+    if (U <= dnorm(Y,0,1)/ (c*ddoublex(Y,0,1))){
+      accepted <- accepted + 1
+      final[accepted] <- Y
+  
+    } else {
+      rejected <- rejected + 1
+    }
+}
+  
+result <- list("Simulated values of X"=final,"Accepted"=accepted,"Rejected"=rejected)
+}
+
+values <- accept_reject(1.31,2000)
+
+```
+
+```{r echo=F}
+#histogram of simulated values
+
+par(mfrow=c(1,2))
+hist(values$`Simulated values of X`,breaks=30,main= "Simulation of N(0,1) using DE(0,1)",xlab="Simulated N(0,1) values",col="blue")
+hist(rnorm(2000,0,1),breaks=30,main="Real values of N(0,1) using rnorm()"
+     ,xlab="N(0,1) values",col="pink")
+
+
+```
+
+We see that the histogram generated from the simulation of N(0,1) looks similar to the one obtained
+using the build-in function *rnorm()* which shows that the simulation worked well. The simulated N(0,1) histogram looks normally distributed as it has the characteristic bell curve.
+
+
+The probability of having acceptance in one repetition of the algorithm is $\frac{1}{c}$.
+
+Thus,the expected rejection rate will be $1-\frac{1}{c}$.
+
+```{r echo=F}
+#rejection rate
+R <- values$Rejected / (values$Rejected + values$Accepted)
+cat("The rejection rate is","\n")
+R
+
+#Expected rejection rate
+c <- 1.31
+ER <- 1- 1/c
+cat("The expected rejection rate is","\n")
+ER
+
+```
+
+We see that the rejection rate we obtained from the algorithm we implemented($\sim22$)% is very close to the expected rejection rate($\sim 0.24$)%.
