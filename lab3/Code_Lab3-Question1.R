@@ -39,11 +39,12 @@ selections[,1]
    ## Selected cities are large cities based on their population
 
 ## 1-5. Histograms
-
-hist(x=selections$Population, breaks = 4, 
+par(mfrow=c(1,1))
+hist(x=selections$Population, breaks = 40, 
      main="Population of the Selected Cities", xlab="Population")
-hist(x=pop_data$Population, breaks=4,
+hist(x=pop_data$Population, breaks=40,
      main="Population of All Cities", xlab="Population")
+
   ## The first histogram which shows the population of the
   ## selected cities shows that majority of the population
   ## are less than 200,000 and there are only few cities that
@@ -51,9 +52,13 @@ hist(x=pop_data$Population, breaks=4,
 
   ## The second histogram which shows the populationof all
   ## cities in sweden more clearly shows that most of the
-  ## cities in Sweden have population less than 200,000, and
-  ## very few cities have population more than that.
+  ## cities in Sweden have population less than 200,000 
+  ## (Furthermore, among these cities, majority of them have
+  ## population less than 20,000), and very few cities have 
+  ## population more than that.
 
-  ## To conclude, selection of cities based on random number
-  ## generation worked quite well in representing Swedish city
-  ## dempgraphic.
+  ## To conclude, selection of cities using random number
+  ## generation worked quite well in producting an opinion
+  ## pool. The selection is based on the city population;
+  ## the cities with large population that exceeds 20,000 are
+  ## mostly chosen.
