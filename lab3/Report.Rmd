@@ -64,13 +64,9 @@ names(selections) <- c("City","Population")
 
 ### 4. Run the program. Which cities were selected? What can you say about the size of the selected cities?
 
-```{r, echo=FALSE}
+```{r, echo=FALSE, message=FALSE, warning=FALSE}
 cat("List of 20 selected cities and their populations are: ", "\n")
-selections[]
-   ## Majority of the populations in each city exceeds 20,000
-   ## Several of them has a population that exceeds 200,000
-   ## Selected cities are large cities based on their population
-
+selections
 ```
 
  Majority of the populations in each city exceeds 20,000. Several of them has a population exceeding 200,000. Considering their population, selected cities are large cities.
@@ -124,11 +120,11 @@ hist(x=pop_data$Population, breaks=40,
 
 and the Cumulative density function is:
 
-For $\underline{x\geq0:}$
+For $\underline{x<0:}$
 
 $$F_{x}(x)= \int_{-\infty}^{x} \frac{1}{2}e^x = \frac{1}{2} e^x \Big|_ {-\infty}^x=\frac{1}{2}e^x$$
 
-For $\underline{x <0:}$
+For $\underline{x \geq0:}$
 
 $F_{x}(x)= \int_{-\infty}^{x}\frac{1}{2}e^{-x}$ $=\int_{-\infty}^{0}\frac{1}{2}e^{-x}$ $+ \int_{0}^{x} \frac{1}{2}e^{-x}$ $=\\ \frac{1}{2}(-e^x) \Big|_{-\infty}^0$ $+\frac{1}{2}(-e^x) \Big|_0^x$ $= \frac{1}{2} - \frac{1}{2}e^{-x}$ $+ \frac{1}{2} = 1 - \frac{1}{2}e^{-x}$
 
@@ -174,7 +170,7 @@ $\underline{Algorithm:}$
 
 
 
-```{r echo=F}
+```{r echo=F, warning=FALSE, message=FALSE}
 rglaplace <- function(n){
   
   U <- runif(n,0,1)
@@ -237,7 +233,7 @@ $\underline{Algorithm:}$
 
 $$(\frac{f_{X}(y)}{f_{Y}(y)})'=(\frac{2}{\sqrt{2\pi}} e^{x-\frac{1}{2}x^2})'=\frac{2}{\sqrt{2\pi}} e^{x-\frac{1}{2}x^2}(-x+1) = 0 \\ \Rightarrow  (-x+1) = 0 \Rightarrow x=1$$
 
- Now put this x into the ratio and it is possible to get that $c=\frac{f_{X}(1)}{f_{Y}(1)}=$ $\frac{2}{\sqrt{2\pi}} e^{1-\frac{1}{2}}=$ $\frac{2}{\sqrt{2\pi}} e^{\frac{1}{2}} = 1.31$ (rounded in two decimals) which is the optimal value of c.
+ By putting this x into the ratio, it is possible to get that $c=\frac{f_{X}(1)}{f_{Y}(1)}=$ $\frac{2}{\sqrt{2\pi}} e^{1-\frac{1}{2}}=$ $\frac{2}{\sqrt{2\pi}} e^{\frac{1}{2}} = 1.31$ (rounded in two decimals) which is the optimal value of c.
 
 ```{r echo=F}
 #we have x in real numbers
