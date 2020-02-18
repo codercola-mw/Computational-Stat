@@ -1,0 +1,136 @@
+---
+title: "lab4_mecon"
+author: "Weng Hang Wong"
+date: "2/18/2020"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# Question 1 - Computations with Metropolis–Hastings
+
+### 1.
+In this question we have the probability density function:
+$$f(x)\ \alpha \ x^5e^{-x}$$
+
+By using Metropolis-Hastings algorithm, we generate the random sample from the proposal distrubution as log-normal $LN(X_{t}+1)$ , we set our starting point as X0 = 1 since it can present our data better. From the figure, the points are mostly converage at the top
+
+```{r, echo=FALSE}
+RNGversion("3.5.1")
+
+#question1
+
+set.seed(12345)
+MH_normal <- function(tmax, X0){
+  t=1
+  X=rep(X0,tmax)
+  while(t < tmax){
+    Y <- rlnorm(1, X[t], 1)
+    U <- runif(1,0,1)
+  
+    alpha_fun <- function(X,Y){
+      pi_Y = (Y^5)*exp(-Y)
+      pi_Xt = (X^5)*exp(-X)
+      q_Xt = dlnorm(X, Y,1)
+      q_Y = dlnorm(Y,X,1)
+      out = min(1,pi_Y*q_Xt/(pi_Xt*q_Y))
+      return(out)
+    }
+      if(U < alpha_fun(X[t],Y)){
+        X[t+1] = Y
+      }else{
+        X[t+1] = X[t]
+        }
+    t=t+1
+  }
+　return(X)
+}
+tmax=500
+X0=1
+plot(1:tmax, MH_normal(tmax,X0),"l",xlab="Time Series", ylab="X", main="log-Normal Metropolis-Hastings")
+```
+
+### 2
+Repeat the Step 1 by suing the chi-square distribution $\chi^2([X_{t}+1])$ as proposal distribution.
+
+In the below figure, the convergence of the chain is comparatively more obvious in the range of 4 to 6 of X,  and there is we can see the burn-in period. 
+
+```{r, echo=F}
+# 2
+MH_chi <- function(tmax, X0){
+  t=1
+  X=rep(X0,tmax)
+  while(t < tmax){
+    Y <- rchisq(1, X[t]+1)
+    U <- runif(1,0,1)
+    
+    alpha_fun <- function(X,Y){
+      pi_Y = (Y^5)*exp(-Y)
+      pi_Xt = (X^5)*exp(-X)
+      q_Xt = dchisq(X, Y+1)
+      q_Y = dchisq(Y,X+1)
+      out = min(1,pi_Y*q_Xt/(pi_Xt*q_Y))
+      return(out)
+    }
+    if(U < alpha_fun(X[t],Y)){
+      X[t+1] = Y # floor?
+    }else{
+      X[t+1] = X[t]
+    }
+    t=t+1
+  }
+  return(X)
+}
+
+tmax=500
+X0 = 1
+plot(1:tmax, MH_chi(tmax,X0),"l",  xlab="Time Series", ylab="X", main="Chi-square Metropolis-Hastings")  
+
+
+```
+
+### 3
+
+
+### 4
+
+Values much larger than 1 indicate lack of convergence, in sise, the point estimate is 1.02 and it is very close to 1. Therefore, with using Chi-square as proposal distribution has good convergence result.
+
+```{r, echo=F}
+library(coda)
+f = mcmc.list()
+
+for(X0 in 1:10){
+  f[[X0]] = as.mcmc(MH_chi(tmax,X0))
+}
+
+print(gelman.diag(f))
+
+plot(f)
+```
+
+
+
+### 5
+From the definition, we can use the mean of the samples generated from the step1 and step2.
+```{r}
+# The samples from Step 1
+mean(MH_normal(500,1))
+
+# The samples from Step 2
+mean(MH_chi(500,1))
+```
+
+
+### 6
+The probability distribution function of a Gamma(a,b) is $$f_x(x)=\frac {\beta^a}{\Gamma(a)} x^{a-1} e^{-\beta x}$$ for x>0 and $$\alpha,\beta >0$$ .
+So in our case, we have a Gamma(6,1) and thus the integral we want to compute is
+$$\frac{1}{\Gamma(6)} \int_{0}^{\infty} x^6 e^{-x} dx$$.
+We will use R code to compute it.
+
+# Appendix
+
+```{r ref.label=knitr::all_labels(), echo=T, eval=F}
+```
