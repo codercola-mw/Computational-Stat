@@ -1,0 +1,275 @@
+---
+title: "lab 4 Vaso"
+author: "Vasileia Kampouraki"
+date: "13/2/2020"
+output: pdf_document
+---
+
+# Question 1: Computations with Metropolis-Hastings
+
+
+**Consider the following probability density function: $f(x)\propto x^5e^{-x}$, x > 0: You can see that the distribution is known up to some constant of proportionality. If you are interested (NOT part of the Lab) this constant can be found by applying integration by parts multiple times and equals 120.**
+
+
+### 1. Use Metropolis-Hastings algorithm to generate samples from this distribution by using proposal distribution as log-normal LN(Xt,1), take some starting point. Plot the chain you obtained as a time series plot. What can you guess about the convergence of the chain? If there is a burn-in period, what can be the size of this period?
+
+Our target distribution that we want to sample from is $\pi(x)\propto x^5e^{-x}$, by using log-Normal $LN(X_{t},1)$ as proposal distribution.
+
+```{r}
+RNGversion("3.5.1")
+library(stats)
+
+set.seed(12345)
+#target pdf
+targetf <- function(x){
+ if (x<0){
+   return(0)
+   
+ }else{
+   return((x^5)*exp(-x))
+ }
+}
+
+#Manhatan Hastings algorithm
+mh <- function(nstep,x0){
+  x <- rep(x0,nstep) #target distribution
+  for (i in 2:nstep){
+    currentx <- x[i-1]
+    Y <-rlnorm(1,meanlog=currentx,sdlog=1)  #proposal distribution
+    U <- runif(1)
+    a<- min(c(1,targetf(Y)*dlnorm(currentx,meanlog = Y,sdlog=1))/(targetf(currentx)*dlnorm(Y,meanlog=currentx,sd=1)))
+    if (U <= a){
+      x[i]<- Y
+    } else {
+      x[i] <- currentx
+    }
+ }
+ return(x)  
+}
+
+
+mh2 <- mh(10000,3)
+plot(mh2,type = "l",xlab="t",ylab="X(t)",main= "Chain of target distribution")
+
+
+```
+
+We run the algorithm for 10000 times and look at the plot of the chain obtained, as a time series plot.
+We chose $X_0=3$ as our, arbitrary, starting point. The basic idea of the algorithm is to simulate a Markov Chain with stationary distribution, the "target"-distribution ($\pi(x)$).
+However, the $X_0$ is chosen arbitrarily so we don't know how quickly the chain is going to stabilize.This is actually the burning period of the chain, and thus we can discard the samples from this period and keep those that have been stabilized.
+
+In our case, looking at the time series plot of the chain we could say that at the beginning we have a good image of the chain and the burning-period seems almost insignificant so we could probably say that there's no need to reject part of the sample at the beginning. However, we can observe some periods where the algorithm constantly rejects values of y and the cain remains stable at the same point, as it happens for example at around t=5000 and t=5500.
+
+We could say that in the end the chain converges to the target distribution ($\pi(x)\propto x^5e^{-x}$), at least for the number of t chosen(t=10000) but we are not so confident about it.
+
+
+
+### 2. Perform Step 1 by using the chi-square distribution $\chi^2(\lfloor X_{t} + 1 \rfloor$ as a proposal distribution,where $\lfloor X \rfloor$ is the floor function, meaning the integer part of x for positive x, i.e. $\lfloor 2.95 \rfloor$ = 2
+
+
+```{r}
+
+mh_chi <- function(nstep,x0){
+  x <- rep(x0,nstep) #target distribution
+  for (i in 2:nstep){
+    currentx <- x[i-1]
+    Y <- rchisq(1,df=floor(currentx +1))  #proposal distribution
+    U <- runif(1)
+    a<- min(c(1,targetf(Y))*dchisq(currentx,df=floor(Y+1))/(targetf(currentx)*dchisq(Y,df=floor(currentx+1))))
+    if (U <= a){
+      x[i]<- Y
+    } else {
+      x[i] <- currentx
+    }
+ }
+ return(x)  
+}
+
+
+mh_chi_vis <- mh_chi(10000,3)
+plot(mh_chi_vis,type = "l",xlab="t",ylab="X(t)",main= "Chain of target distribution")
+```
+
+
+Now we changed our proposal distribution from $LN(X_{t},1)$ to $\chi^2(\lfloor X_{t} + 1 \rfloor)$.
+After plotting the chain of the target distribution we can conclude that the result is actually very good. The burning period is very small,we would say insignificant and the chain stabilizes quickly and stay stabilized throughout the whole process. We can see quite high oscillations in the state space but the algorithm seems to accept generally the values of Y as we can't observe periods where the chain remained stable at the same distribution (i.e. being flat for a while).
+Finally, the chain seems to converge to the stationary distribution $\pi$.
+
+
+### 3. Compare the results of Steps 1 and 2 and make conclusions.
+
+Comparing Steps 1 and 2 we would say that using $\chi^2(\lfloor X_{t} + 1 \rfloor$ as proposal distribution we obtained better results compared to what we obtained when we used $LN(X_{t},1)$, basically because the chain was moving smoothly and wasn't stuck in the same values of X.
+
+
+### 4. Generate 10 MCMC sequences using the generator from Step 2 and starting points 1,2,...,10. Use the Gelman-Rubin method to analyze convergence of these sequences.
+
+
+```{r}
+library(coda)
+
+mh1_chi <- as.mcmc(mh_chi(10000,1))
+mh2_chi <- as.mcmc(mh_chi(10000,2))
+mh3_chi <- as.mcmc(mh_chi(10000,3))
+mh4_chi <- as.mcmc(mh_chi(10000,4))
+mh5_chi <- as.mcmc(mh_chi(10000,5))
+mh6_chi <- as.mcmc(mh_chi(10000,6))
+mh7_chi <- as.mcmc(mh_chi(10000,7))
+mh8_chi <- as.mcmc(mh_chi(10000,8))
+mh9_chi <- as.mcmc(mh_chi(10000,9))
+mh10_chi <- as.mcmc(mh_chi(10000,10))
+
+
+allchains <- mcmc.list(mh1_chi,mh2_chi,mh3_chi,mh4_chi,mh5_chi,mh6_chi,
+                       mh7_chi,mh8_chi,mh9_chi,mh10_chi)
+  
+  
+
+#plot(allchains) 
+
+```
+
+First we generate 10 MCMC sequences using $\chi^2(\lfloor X_{t} + 1 \rfloor$ as proposal distribution and later by using functions from package *coda* we perfom an analysis about the convergence of those chains based on the Gelman-Rubin method.
+
+First we used the *gelman.diag()* function. This function compares the variability within the chains to the variability between the chains. If the Upper C.I is very close to 1 then we can say with 95% confidence that the chains have converged, otherwise values much larger than 1 is an indication of non-convergence.
+
+
+The results we take are those below:
+
+```{r}
+gelman.diag(allchains)
+```
+
+Based on those results we can say that the chains have converged to the stationary distribution.
+
+However, it's better to investigate the case a bit further so we will use the *gelman.plot()* function to explore the results from the plot.
+
+```{r}
+gelman.plot(allchains) 
+```
+
+
+Looking at this plot, we observe how the shrink factor changes with the increase of iterations. During the first 50 iterations the shrink factor was around 1.3 indicating that no convergence has yet occured. However, after around 8000 iterations we can observe that the chains have now probably converged.
+
+### 5 Estimate $\int_{0}^{\infty} xf(x) dx$ using the samples from Steps 1 and 2.
+
+
+Now we want to estimate the integral $\int_{0}^{\infty} xf(x) dx$ using the samples we obtaines at step 1 and 2. Looking at the form of the integral we can observe that this is the mean by definition. So we will just compute the means of those samples and in this way we will have approximated the integral.
+
+```{r}
+
+n= 10000
+sample_lognorm <- mh2
+sample_chisq <- mh_chi_vis
+
+#The integrals will be approximated by the means of the samples
+
+cat("The estimation of this integral using the first sample is:","\n")
+ int_lognorm <- sum(sample_lognorm)/n
+ int_lognorm
+
+cat("and using the second sample is:","\n")  
+ int_chisq <- sum(sample_chisq)/n
+ int_chisq
+
+```
+
+
+### 6. The distribution generated is in fact a gamma distribution. Look in the literature and define the actual value of the integral. Compare it with the one you obtained.
+
+The probability distribution function of a Gamma(a,b) is $f_x(x)=\frac {\beta^a}{\Gamma(a)} x^{a-1} e^{-\beta x}$ for x>0 and $\alpha,\beta >0$.
+So in our case, we have a Gamma(6,1) and thus the integral we want to compute is
+$\frac{1}{\Gamma(6)} \int_{0}^{\infty} x^6 e^{-x} dx$.
+We will use R code to compute it.
+
+```{r}
+
+f <- function(x){
+  1/120*(x^6)*exp(-x)
+} 
+
+int <- integrate(f,0,Inf)
+
+cat("The real value of the integral is:","\n")
+int
+```
+
+Comparing the real value of the integral to the ones obtained by using the samples generated in steps 1 and 2 we observe that it's close only to the value obtained by estimating the integral using the sample generated with Chi-squared as proposal distribution.
+
+More precisely, from the previous question, the estimaton of the integral using the sample from step 2 was 6.564677 which is pretty close to the real value(=6).
+
+
+
+# Question 2: Gibbs sampling
+
+**A concentration of a certain chemical was measured in a water sample, and the result was stored in the data *chemical.RData* having the following variables:**
+
+* X: **day of the measurement**
+
+* Y: **measured concentration of the chemical.**
+
+**The instrument used to measure the concentration had certain accuracy; this is why the measurements can be treated as noisy. Your purpose is to restore the expected concentration values.**
+
+
+### 1. Import the data to R and plot the dependence of Y on X. What kind of model is reasonable to use here?
+
+```{r echo=F}
+data <- load("C:/Users/Vaso/Desktop/data computational/chemical.RData")
+
+df<- data.frame("day"=X,"concentration"=Y)
+```
+
+```{r}
+plot(df$day,df$concentration,xlab="Day",ylab="Concentration of chemical",main="Dependency of concentration on days")
+```
+
+Looking at the way the data are on the plot we could assume that a logarithmic model could probably fit well those data.
+
+
+### 2. **A researcher has decided to use the following (random-walk) Bayesian model (n=number of observations,$\vec{\mu}=\mu_1, \mu_2,...,\mu_n$ are unknown parameters):**
+
+**Yi $\sim N(\mu_i, variance = 0.2)$ i = 1,...,n**
+
+**where the prior is**
+
+**$$p(\mu_1)=1$$**
+
+**$$p(\mu_{i+1} | \mu_i)= N(\mu_i,0.2)$$**
+
+**Present the formulae showing the likelihood $P(\vec{Y}|\vec{\mu})$ and the prior $p(\vec{\mu})$.** **Hint: a chain rule can be used here $p(\vec{\mu}) = p(\mu_1)p(\mu_{2} | \mu_1)p(\mu_{3} | \mu_2)... p(\mu_{n} | \mu_{n_1})$.**
+
+
+Yi $\sim N(\mu_i, variance = 0.2)$, so the likelihood will be:
+
+
+**Likelihood:**
+
+$$P(\vec{Y}|\vec{\mu})= \prod_{i=1}^{n} \frac {1}{\sqrt{2\pi0.2}}  e^{-\frac{1}{2 \cdot 0.2}(y - \mu)^2} \propto  e^{-\frac{1}{0.4} \sum_{i=1}^{n} (y_i - \mu_i)^2}$$
+
+
+For the **prior** probability $p(\vec{\mu})$ we will use the chain rule.
+
+$$p(\mu_1)=1$$
+
+$$p(\mu_{2} | \mu_1) \sim N(\mu_1,0.2) = \frac {1}{\sqrt{2\pi0.2}}  e^{-\frac{1}{2 \cdot 0.2} (\mu_2-\mu_1)^2}$$
+
+$$p(\mu_{3} | \mu_2) \sim N(\mu_2,0.2) = \frac {1}{\sqrt{2\pi0.2}}  e^{-\frac{1}{2 \cdot 0.2} (\mu_2-\mu_3 )^2} \\
+   \vdots \\$$
+
+$$p(\mu_{n} | \mu_{n_1}) \sim N(\mu_{n_1},0.2) = \frac {1}{\sqrt{2\pi0.2}}  e^{-\frac{1}{2 \cdot 0.2}  (\mu_{n_1}- \mu_{n} )^2}$$
+
+Thus, using the chain rule and combining all those equations we get that the prior is:
+
+$$p(\vec{\mu}) = p(\mu_1)p(\mu_{2} | \mu_1)p(\mu_{3} | \mu_2)... p(\mu_{n} | \mu_{n_1}) \propto e^ {- \frac{\sum_{i=1}^{n_1} (\mu_{i} - \mu_{i-1})^2}{0.4}}$$
+
+
+### 3.
+
+Based on the Bayes' Theorem **Posterior probability $\propto$ Likelihood x Prior probability**
+
+From the previous question we have already computed the Likelihood $P(\vec{Y}|\vec{\mu})$ and the prior probability p($\vec{\mu}$).
+
+We are asked to find the distributions of $(\mu_{i} | \vec{\mu_{-i}} , \vec{Y})$ where $\vec{\mu_{-i}}$ is a vector containing all $\mu$ values except of
+$\mu_{i}$.
+
+So, to find the distributions we first have to find the posterior probabilities and then look at their form and see from which distribution they come from.
+
