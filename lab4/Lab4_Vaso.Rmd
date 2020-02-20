@@ -56,9 +56,9 @@ plot(mh2,type = "l",xlab="t",ylab="X(t)",main= "Chain of target distribution")
 
 We run the algorithm for 10000 times and look at the plot of the chain obtained, as a time series plot.
 We chose $X_0=3$ as our, arbitrary, starting point. The basic idea of the algorithm is to simulate a Markov Chain with stationary distribution, the "target"-distribution ($\pi(x)$).
-However, the $X_0$ is chosen arbitrarily so we don't know how quickly the chain is going to stabilize.This is actually the burning period of the chain, and thus we can discard the samples from this period and keep those that have been stabilized.
+However, the $X_0$ is chosen arbitrarily so we don't know how quickly the chain is going to stabilize.This is actually the burn-in period of the chain, and thus we can discard the samples from this period and keep those that have been stabilized.
 
-In our case, looking at the time series plot of the chain we could say that at the beginning we have a good image of the chain and the burning-period seems almost insignificant so we could probably say that there's no need to reject part of the sample at the beginning. However, we can observe some periods where the algorithm constantly rejects values of y and the cain remains stable at the same point, as it happens for example at around t=5000 and t=5500.
+In our case, looking at the time series plot of the chain we could say that at the beginning we have a good image of the chain and the burn-in period seems almost insignificant so we could probably say that there's no need to reject part of the sample at the beginning. However, we can observe some periods where the algorithm constantly rejects values of y and the cain remains stable at the same point, as it happens for example at around t=5000 and t=5500.
 
 We could say that in the end the chain converges to the target distribution ($\pi(x)\propto x^5e^{-x}$), at least for the number of t chosen(t=10000) but we are not so confident about it.
 
@@ -66,6 +66,7 @@ We could say that in the end the chain converges to the target distribution ($\p
 
 ### 2. Perform Step 1 by using the chi-square distribution $\chi^2(\lfloor X_{t} + 1 \rfloor$ as a proposal distribution,where $\lfloor X \rfloor$ is the floor function, meaning the integer part of x for positive x, i.e. $\lfloor 2.95 \rfloor$ = 2
 
+*Note:* The code is based on the teacher's code example.
 
 ```{r}
 
@@ -92,7 +93,7 @@ plot(mh_chi_vis,type = "l",xlab="t",ylab="X(t)",main= "Chain of target distribut
 
 
 Now we changed our proposal distribution from $LN(X_{t},1)$ to $\chi^2(\lfloor X_{t} + 1 \rfloor)$.
-After plotting the chain of the target distribution we can conclude that the result is actually very good. The burning period is very small,we would say insignificant and the chain stabilizes quickly and stay stabilized throughout the whole process. We can see quite high oscillations in the state space but the algorithm seems to accept generally the values of Y as we can't observe periods where the chain remained stable at the same distribution (i.e. being flat for a while).
+After plotting the chain of the target distribution we can conclude that the result is actually very good. The burn-in period is very small,we would say insignificant and the chain stabilizes quickly and stay stabilized throughout the whole process. We can see quite high oscillations in the state space but the algorithm seems to accept generally the values of Y as we can't observe periods where the chain remained stable at the same distribution (i.e. being flat for a while).
 Finally, the chain seems to converge to the stationary distribution $\pi$.
 
 
@@ -259,17 +260,99 @@ $$p(\mu_{n} | \mu_{n_1}) \sim N(\mu_{n_1},0.2) = \frac {1}{\sqrt{2\pi0.2}}  e^{-
 
 Thus, using the chain rule and combining all those equations we get that the prior is:
 
-$$p(\vec{\mu}) = p(\mu_1)p(\mu_{2} | \mu_1)p(\mu_{3} | \mu_2)... p(\mu_{n} | \mu_{n_1}) \propto e^ {- \frac{\sum_{i=1}^{n_1} (\mu_{i} - \mu_{i-1})^2}{0.4}}$$
+$$p(\vec{\mu}) = p(\mu_1)p(\mu_{2} | \mu_1)p(\mu_{3} | \mu_2)... p(\mu_{n} | \mu_{n_1}) \propto e^ {- \frac{\sum_{i=2}^{n} (\mu_{i} - \mu_{i-1})^2}{0.4}}$$
 
 
-### 3.
+### 3. Use Bayes' Theorem to get the posterior up to a constant proportionality, and then find out the distributions of $(\mu_{i} | \vec{\mu_{-i}}$, where $\vec{\mu_{-i}}$ is a vector containing all $\mu$ values except of $\mu_{i}$.
 
 Based on the Bayes' Theorem **Posterior probability $\propto$ Likelihood x Prior probability**
 
 From the previous question we have already computed the Likelihood $P(\vec{Y}|\vec{\mu})$ and the prior probability p($\vec{\mu}$).
 
-We are asked to find the distributions of $(\mu_{i} | \vec{\mu_{-i}} , \vec{Y})$ where $\vec{\mu_{-i}}$ is a vector containing all $\mu$ values except of
+We are asked to find the distributions of $(\mu_{i}|\vec{\mu_{-i}} ,\vec{Y})$ where $\vec{\mu_{-i}}$ is a vector containing all $\mu$ values except of
 $\mu_{i}$.
 
-So, to find the distributions we first have to find the posterior probabilities and then look at their form and see from which distribution they come from.
+So, to find the distributions we first have to find the posterior probabilities and then look at their formula and see from which distribution they come from.
 
+
+**Posterior probability**
+
+
+ $$P(\mu_{i}|\vec{\mu_{-i}},\vec{Y})\propto P(\vec{Y}|\vec{\mu})P(\vec{\mu})$$
+
+For **$\mu_1$:**
+
+$$P(\mu_{1}|\vec{\mu_{-1}} ,\vec{Y}) \propto e^{-\frac{1}{2 \cdot 0.2} \{ (y_1- \mu_{1} )^2 + (\mu_{2} - \mu_{1})^2 \}} = \\ e^{-\frac{1}{ \frac{0.4}{2}} \{ \mu_{1} - \frac{y_1 + \mu_2}{2} \}^2}$$
+
+Thus, $$\mu_{1}|\vec{\mu_{-1}} \sim N( \frac{y_1 + \mu_2}{2} ,0.1)$$
+
+
+For **$\mu_i$** ,i=2,...,n-1:
+
+$$P(\mu_{i}|\vec{\mu_{-i}} ,\vec{Y})  \propto e^{-\frac{1}{2 \cdot 0.2} \{(y_i- \mu_{i} )^2 + (\mu_{i} - \mu_{i-1})^2 + (\mu_{i+1} - \mu_{i})^2 \} } = \\ e^{-\frac{1}{ \frac{0.4}{3}} \{ \mu_{i} - \frac{y_i + \mu_{i-1} + \mu_{i+1}}{3} \}^2}$$
+
+
+Thus, $$\mu_{i}|\vec{\mu_{-i}} \sim N(\frac{y_i + \mu_{i-1} + \mu_{i+1}}{3} ,0.6)$$
+
+
+For **$\mu_n$:**
+
+
+$$P(\mu_{n}|\vec{\mu_{-n}} ,\vec{Y})  \propto e^{-\frac{1}{2 \cdot 0.2} \{ (y_n- \mu_{n} )^2 + (\mu_{n} - \mu_{n-1})^2 \}} = \\ e^{-\frac{1}{ \frac{0.4}{2}} \{ \mu_{n} - \frac{y_n + \mu_{n-1}}{2} \}^2}$$
+
+Thus, $$\mu_{n}|\vec{\mu_{-n}} \sim N( \frac{y_n + \mu_{n-1}}{2} ,0.1)$$
+
+
+
+### 4. Use the distributions derived in Step 3 to implement a Gibbs sampler that uses $\vec{\mu}^0$ = (0,...,0) as a starting point. Run the Gibbs sampler to obtain 1000 values of $\vec{\mu}$ and then compute the expected value of $\vec{\mu}$ by using a Monte Carlo approach. Plot the expected value of $\vec{\mu}$ versus X and Y versus X in the same graph. Does it seem that you have managed to remove the noise? Does it seem that the expected value of $\vec{\mu}$ can catch the true underlying dependence between Y and X? 
+
+```{r}
+#http://www.mit.edu/~ilkery/papers/GibbsSampling.pdf
+
+#we have 50 observations and want to simulate 1000 values of mu
+
+mu=matrix(0,nrow=1000,ncol=50)
+
+for (i in 2:1000){ #first row will remain zero, the initialized
+  for (j in 2:49){
+    mu[i,1]<- rnorm(1,mean=(Y[1]+mu[i-1,2])/2,sd=0.1)  #mu_1
+    
+    mu[i,j] <- rnorm(1,mean=(Y[j] + mu[i,j-1] + mu[i-1,j+1])/3,sd=0.06)  #mu_ij
+    
+    mu[i,50] <- rnorm(1,mean=(mu[i,49]+Y[50])/2,sd=0.1)  #mu_50
+     
+  }
+}
+
+expected_mu <- colMeans(mu)
+
+plot(X,expected_mu,type="l",ylab="")
+lines(X,Y,col="red")
+legend(1,1.7, legend=c("Expected mu", "Y"),
+       col=c("black", "red"), lty=1, cex=0.8)
+
+
+
+```
+
+Observing the plot, we can say that it seems the noise has been removed as the black line is quite smooth, compared ,at least, to the red line which represents Y.
+Also, from the form of the line of expected $\mu$ we can say that the expected value of $\mu$ can catch the true underlying dependence between Y and X as it follows well the red line.
+
+
+### 5. Make a trace plot for $\mu_n$ and comment on the burn-in period and convergence.
+
+```{r}
+#trace plot for mu_50
+
+plot(mu[,50],type = "l",main="Trace plot of mu_50",xlab="t")
+```
+
+We can see that the burn-in beriod of $\mu_{50}$ is very small, basically it takes around 10 or less,probably, iterations until it stabilizes so, this is a small burn-in period,we could say. 
+Finally, it seems that that the chain has converged to the true posterior.
+
+
+# Appendix
+
+```{r ref.label=knitr::all_labels(), echo=T, eval=F}
+
+```
