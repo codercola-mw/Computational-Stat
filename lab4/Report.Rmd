@@ -13,7 +13,7 @@ knitr::opts_chunk$set(echo = TRUE)
 
 ### 1. Use Metropolis-Hastings algorithm to generate samples from this distribution by using proposal distribution as log-normal LN(Xt,1), take some starting point. Plot the chain you obtained as a time series plot. What can you guess about the convergence of the chain? If there is a burn-in period, what can be the size of this period?
 
- The data points will be sampled from the target distribution $\pi(x)\propto x^5e^{-x}$, by using log-Normal $LN(X_{t},1)$ as proposal distribution.
+The data points will be sampled from the target distribution $\pi(x)\propto x^5e^{-x}$, by using log-Normal $LN(X_{t},1)$ as proposal distribution.
 
 
 ```{r, echo=FALSE, message=FALSE, warning=FALSE}
@@ -41,7 +41,7 @@ MH_normal <- function(tmax, X0){
         }
     t=t+1
   }
-　return(X)
+  return(X)
 }
 tmax=1000
 X0=3
@@ -167,7 +167,7 @@ gammadist
 ### 1. Import the data to R and plot the dependence of Y on X. What kind of model is reasonable to use here?
 
 ```{r echo=F}
-data <- load("~/Computational Stat/732A90_VT2020_Materials/chemical.RData")
+data <- load("~/Desktop/732A90_VT2020_Materials/chemical.RData")
 df<- data.frame("day"=X,"concentration"=Y)
 ```
 

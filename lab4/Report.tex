@@ -1,0 +1,541 @@
+\documentclass[]{article}
+\usepackage{lmodern}
+\usepackage{amssymb,amsmath}
+\usepackage{ifxetex,ifluatex}
+\usepackage{fixltx2e} % provides \textsubscript
+\ifnum 0\ifxetex 1\fi\ifluatex 1\fi=0 % if pdftex
+  \usepackage[T1]{fontenc}
+  \usepackage[utf8]{inputenc}
+\else % if luatex or xelatex
+  \ifxetex
+    \usepackage{mathspec}
+  \else
+    \usepackage{fontspec}
+  \fi
+  \defaultfontfeatures{Ligatures=TeX,Scale=MatchLowercase}
+\fi
+% use upquote if available, for straight quotes in verbatim environments
+\IfFileExists{upquote.sty}{\usepackage{upquote}}{}
+% use microtype if available
+\IfFileExists{microtype.sty}{%
+\usepackage{microtype}
+\UseMicrotypeSet[protrusion]{basicmath} % disable protrusion for tt fonts
+}{}
+\usepackage[margin=1in]{geometry}
+\usepackage{hyperref}
+\hypersetup{unicode=true,
+            pdftitle={Computational Statistics Lab4},
+            pdfauthor={Vasileia Kampouraki, Weng Hang Wong, Jooyoung Lee},
+            pdfborder={0 0 0},
+            breaklinks=true}
+\urlstyle{same}  % don't use monospace font for urls
+\usepackage{color}
+\usepackage{fancyvrb}
+\newcommand{\VerbBar}{|}
+\newcommand{\VERB}{\Verb[commandchars=\\\{\}]}
+\DefineVerbatimEnvironment{Highlighting}{Verbatim}{commandchars=\\\{\}}
+% Add ',fontsize=\small' for more characters per line
+\usepackage{framed}
+\definecolor{shadecolor}{RGB}{248,248,248}
+\newenvironment{Shaded}{\begin{snugshade}}{\end{snugshade}}
+\newcommand{\AlertTok}[1]{\textcolor[rgb]{0.94,0.16,0.16}{#1}}
+\newcommand{\AnnotationTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textbf{\textit{#1}}}}
+\newcommand{\AttributeTok}[1]{\textcolor[rgb]{0.77,0.63,0.00}{#1}}
+\newcommand{\BaseNTok}[1]{\textcolor[rgb]{0.00,0.00,0.81}{#1}}
+\newcommand{\BuiltInTok}[1]{#1}
+\newcommand{\CharTok}[1]{\textcolor[rgb]{0.31,0.60,0.02}{#1}}
+\newcommand{\CommentTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textit{#1}}}
+\newcommand{\CommentVarTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textbf{\textit{#1}}}}
+\newcommand{\ConstantTok}[1]{\textcolor[rgb]{0.00,0.00,0.00}{#1}}
+\newcommand{\ControlFlowTok}[1]{\textcolor[rgb]{0.13,0.29,0.53}{\textbf{#1}}}
+\newcommand{\DataTypeTok}[1]{\textcolor[rgb]{0.13,0.29,0.53}{#1}}
+\newcommand{\DecValTok}[1]{\textcolor[rgb]{0.00,0.00,0.81}{#1}}
+\newcommand{\DocumentationTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textbf{\textit{#1}}}}
+\newcommand{\ErrorTok}[1]{\textcolor[rgb]{0.64,0.00,0.00}{\textbf{#1}}}
+\newcommand{\ExtensionTok}[1]{#1}
+\newcommand{\FloatTok}[1]{\textcolor[rgb]{0.00,0.00,0.81}{#1}}
+\newcommand{\FunctionTok}[1]{\textcolor[rgb]{0.00,0.00,0.00}{#1}}
+\newcommand{\ImportTok}[1]{#1}
+\newcommand{\InformationTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textbf{\textit{#1}}}}
+\newcommand{\KeywordTok}[1]{\textcolor[rgb]{0.13,0.29,0.53}{\textbf{#1}}}
+\newcommand{\NormalTok}[1]{#1}
+\newcommand{\OperatorTok}[1]{\textcolor[rgb]{0.81,0.36,0.00}{\textbf{#1}}}
+\newcommand{\OtherTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{#1}}
+\newcommand{\PreprocessorTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textit{#1}}}
+\newcommand{\RegionMarkerTok}[1]{#1}
+\newcommand{\SpecialCharTok}[1]{\textcolor[rgb]{0.00,0.00,0.00}{#1}}
+\newcommand{\SpecialStringTok}[1]{\textcolor[rgb]{0.31,0.60,0.02}{#1}}
+\newcommand{\StringTok}[1]{\textcolor[rgb]{0.31,0.60,0.02}{#1}}
+\newcommand{\VariableTok}[1]{\textcolor[rgb]{0.00,0.00,0.00}{#1}}
+\newcommand{\VerbatimStringTok}[1]{\textcolor[rgb]{0.31,0.60,0.02}{#1}}
+\newcommand{\WarningTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textbf{\textit{#1}}}}
+\usepackage{graphicx,grffile}
+\makeatletter
+\def\maxwidth{\ifdim\Gin@nat@width>\linewidth\linewidth\else\Gin@nat@width\fi}
+\def\maxheight{\ifdim\Gin@nat@height>\textheight\textheight\else\Gin@nat@height\fi}
+\makeatother
+% Scale images if necessary, so that they will not overflow the page
+% margins by default, and it is still possible to overwrite the defaults
+% using explicit options in \includegraphics[width, height, ...]{}
+\setkeys{Gin}{width=\maxwidth,height=\maxheight,keepaspectratio}
+\IfFileExists{parskip.sty}{%
+\usepackage{parskip}
+}{% else
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{6pt plus 2pt minus 1pt}
+}
+\setlength{\emergencystretch}{3em}  % prevent overfull lines
+\providecommand{\tightlist}{%
+  \setlength{\itemsep}{0pt}\setlength{\parskip}{0pt}}
+\setcounter{secnumdepth}{0}
+% Redefines (sub)paragraphs to behave more like sections
+\ifx\paragraph\undefined\else
+\let\oldparagraph\paragraph
+\renewcommand{\paragraph}[1]{\oldparagraph{#1}\mbox{}}
+\fi
+\ifx\subparagraph\undefined\else
+\let\oldsubparagraph\subparagraph
+\renewcommand{\subparagraph}[1]{\oldsubparagraph{#1}\mbox{}}
+\fi
+
+%%% Use protect on footnotes to avoid problems with footnotes in titles
+\let\rmarkdownfootnote\footnote%
+\def\footnote{\protect\rmarkdownfootnote}
+
+%%% Change title format to be more compact
+\usepackage{titling}
+
+% Create subtitle command for use in maketitle
+\providecommand{\subtitle}[1]{
+  \posttitle{
+    \begin{center}\large#1\end{center}
+    }
+}
+
+\setlength{\droptitle}{-2em}
+
+  \title{Computational Statistics Lab4}
+    \pretitle{\vspace{\droptitle}\centering\huge}
+  \posttitle{\par}
+    \author{Vasileia Kampouraki, Weng Hang Wong, Jooyoung Lee}
+    \preauthor{\centering\large\emph}
+  \postauthor{\par}
+      \predate{\centering\large\emph}
+  \postdate{\par}
+    \date{2020 2 20}
+
+
+\begin{document}
+\maketitle
+
+\hypertarget{question-1-computations-with-metropolis-hastings}{%
+\section{Question 1: Computations with
+Metropolis-Hastings}\label{question-1-computations-with-metropolis-hastings}}
+
+\hypertarget{use-metropolis-hastings-algorithm-to-generate-samples-from-this-distribution-by-using-proposal-distribution-as-log-normal-lnxt1-take-some-starting-point.-plot-the-chain-you-obtained-as-a-time-series-plot.-what-can-you-guess-about-the-convergence-of-the-chain-if-there-is-a-burn-in-period-what-can-be-the-size-of-this-period}{%
+\subsubsection{1. Use Metropolis-Hastings algorithm to generate samples
+from this distribution by using proposal distribution as log-normal
+LN(Xt,1), take some starting point. Plot the chain you obtained as a
+time series plot. What can you guess about the convergence of the chain?
+If there is a burn-in period, what can be the size of this
+period?}\label{use-metropolis-hastings-algorithm-to-generate-samples-from-this-distribution-by-using-proposal-distribution-as-log-normal-lnxt1-take-some-starting-point.-plot-the-chain-you-obtained-as-a-time-series-plot.-what-can-you-guess-about-the-convergence-of-the-chain-if-there-is-a-burn-in-period-what-can-be-the-size-of-this-period}}
+
+The data points will be sampled from the target distribution
+\(\pi(x)\propto x^5e^{-x}\), by using log-Normal \(LN(X_{t},1)\) as
+proposal distribution.
+
+\includegraphics{Report_files/figure-latex/unnamed-chunk-1-1.pdf}
+
+As the figure above, the algorithm was run for 1000 times. The plot of
+chain obtained are represented as a time series plot.
+
+\(X_0=3\) was set to be the arbitrary starting point. The basic idea of
+the algorithm is to simulate a Markov Chain with stationary
+distribution, the ``target''-distribution (\(\pi(x)\)).
+
+However, since \(X_0\) is chosen arbitrarily how quick the chain is
+going to be stabilized is unknown. Such period that takes until the
+simulated data become stabilized is called burn-in period of the chain.
+The samples from this period can be discarded to obtain stabilized
+result.
+
+In above case, looking at the time series plot of the chain it would be
+plausible to say that at the beginning the plot have a good image of the
+chain and the burn-in period seems almost insignificant. It would be
+possible to say that there is no need to reject part of the sample at
+the beginning. However, it is observed that some periods where the
+algorithm constantly rejects values of y and the chain remains stable at
+the same point, as it happens for example at around t=400 to t=800.
+
+In the end the chain, it can be seen that the result does not converge
+to the target distribution (\(\pi(x)\propto x^5e^{-x}\)) at t=1000
+
+\hypertarget{section}{%
+\subsubsection{2}\label{section}}
+
+Repeat the Step 1 by suing the chi-square distribution
+\(\chi^2([X_{t}+1])\) as proposal distribution.
+
+\includegraphics{Report_files/figure-latex/unnamed-chunk-2-1.pdf}
+
+Now the proposal distribution is changed from \(LN(X_{t},1)\) to
+\(\chi^2(\lfloor X_{t} + 1 \rfloor)\). After plotting the chain of the
+target distribution it can be concluded that the result is actually very
+good. The burn-in period is very small, which can be considered
+insignificant, and the chain stabilizes quickly and stay stabilized
+throughout the whole process. Quite high oscillations are observed in
+the state space but the algorithm seems to accept generally the values
+of Y as we cannot observe periods where the chain remained stable at the
+same distribution (i.e.~being flat for a while).
+
+Finally, the chain seems to converge to the stationary distribution
+\(\pi\).
+
+\hypertarget{compare-the-results-of-steps-1-and-2-and-make-conclusions.}{%
+\subsubsection{3. Compare the results of Steps 1 and 2 and make
+conclusions.}\label{compare-the-results-of-steps-1-and-2-and-make-conclusions.}}
+
+From the above result, it can be said the result seems better when the
+chi-square \(\chi^2(\lfloor X_{t} + 1 \rfloor\) is utilized as a
+proposal distribution. Since the chain is more likely to be converged
+and more stable, and it does not has some value stucked in the chain as
+the log-normal distribution one.
+
+\hypertarget{use-the-gelmanrubin-method-to-analyze-convergence-of-these-sequences.}{%
+\subsubsection{4. Use the Gelman--Rubin method to analyze convergence of
+these
+sequences.}\label{use-the-gelmanrubin-method-to-analyze-convergence-of-these-sequences.}}
+
+10 MCMC sequences are generated using the
+\(\chi^2(\lfloor X_{t} + 1 \rfloor\) as proposal distribution from
+above. Then Gelman-Rubin method is used to analyze the convergence of
+the chain.
+
+\texttt{gelman.diag()} function compares the variability within the
+chains to the variability between the chains. If the Upper C.I is very
+close to 1 then it can be said that with 95\% confidence that the chains
+have converged, otherwise values much larger than 1 is an indication of
+non-convergence.
+
+In this case, the upper C.I has the value of 1.02 and it is very close
+to 1. Therefore, with using Chi-square as proposal distribution has a
+good convergence result that it can be concluded that the simulation
+reached to the stationary distribution.
+
+\begin{verbatim}
+## The Gelman-Rubin converage anaylsis:
+\end{verbatim}
+
+\begin{verbatim}
+## Potential scale reduction factors:
+## 
+##      Point est. Upper C.I.
+## [1,]          1       1.01
+\end{verbatim}
+
+\includegraphics{Report_files/figure-latex/unnamed-chunk-3-1.pdf}
+
+\hypertarget{section-1}{%
+\subsubsection{5}\label{section-1}}
+
+To estimate \(\int_{0}^{\infty} xf(x) dx\), the mean of the samples
+generated from the step1 and step2 can be used.
+
+\begin{verbatim}
+## The samples mean from Step 1 (Log-likelihood)
+\end{verbatim}
+
+\begin{verbatim}
+## [1] 3.272259
+\end{verbatim}
+
+\begin{verbatim}
+## The samples mean from Step 2 (chi-sqaure)
+\end{verbatim}
+
+\begin{verbatim}
+## [1] 5.950549
+\end{verbatim}
+
+\hypertarget{section-2}{%
+\subsubsection{6.}\label{section-2}}
+
+The probability distribution function of a Gamma(a,b) is
+\[f_x(x)=\frac {\beta^a}{\Gamma(a)} x^{a-1} e^{-\beta x}\] for
+x\textgreater{}0 and \(\alpha,\beta >0\) .
+
+So in this case, the given distribution is Gamma(6,1) and thus the
+integral value that is required to be computed is
+\[\frac{1}{\Gamma(6)} \int_{0}^{\infty} x^6 e^{-x} dx\].
+
+\begin{verbatim}
+## The real value of the integral is:
+\end{verbatim}
+
+\begin{verbatim}
+## 6 with absolute error < 3.9e-05
+\end{verbatim}
+
+Compare the value obtained from the above step 1 and step 2, it can be
+seen that the real value only close to the value that is estimated from
+the chi-sqaure as proposal distribution, which is 5.950549.
+
+\hypertarget{question-2-gibbs-sampling}{%
+\section{Question 2: Gibbs sampling}\label{question-2-gibbs-sampling}}
+
+\textbf{A concentration of a certain chemical was measured in a water
+sample, and the result was stored in the data \emph{chemical.RData}
+having the following variables:}
+
+\begin{itemize}
+\item
+  X: \textbf{day of the measurement}
+\item
+  Y: \textbf{measured concentration of the chemical.}
+\end{itemize}
+
+\textbf{The instrument used to measure the concentration had certain
+accuracy; this is why the measurements can be treated as noisy. Your
+purpose is to restore the expected concentration values.}
+
+\hypertarget{import-the-data-to-r-and-plot-the-dependence-of-y-on-x.-what-kind-of-model-is-reasonable-to-use-here}{%
+\subsubsection{1. Import the data to R and plot the dependence of Y on
+X. What kind of model is reasonable to use
+here?}\label{import-the-data-to-r-and-plot-the-dependence-of-y-on-x.-what-kind-of-model-is-reasonable-to-use-here}}
+
+\includegraphics{Report_files/figure-latex/unnamed-chunk-7-1.pdf}
+
+Looking at the way the data are on the plot it can be assumed that a
+logarithmic model could fit well those data.
+
+\hypertarget{a-researcher-has-decided-to-use-the-following-random-walk-bayesian-model-nnumber-of-observationsvecmumu_1-mu_2...mu_n-are-unknown-parameters}{%
+\subsubsection{\texorpdfstring{2. \textbf{A researcher has decided to
+use the following (random-walk) Bayesian model (n=number of
+observations,\(\vec{\mu}=\mu_1, \mu_2,...,\mu_n\) are unknown
+parameters):}}{2. A researcher has decided to use the following (random-walk) Bayesian model (n=number of observations,\textbackslash{}vec\{\textbackslash{}mu\}=\textbackslash{}mu\_1, \textbackslash{}mu\_2,...,\textbackslash{}mu\_n are unknown parameters):}}\label{a-researcher-has-decided-to-use-the-following-random-walk-bayesian-model-nnumber-of-observationsvecmumu_1-mu_2...mu_n-are-unknown-parameters}}
+
+\textbf{Yi \(\sim N(\mu_i, variance = 0.2)\) i = 1,\ldots{},n}
+
+\textbf{where the prior is}
+
+\textbf{\[p(\mu_1)=1\]}
+
+\textbf{\[p(\mu_{i+1} | \mu_i)= N(\mu_i,0.2)\]}
+
+\textbf{Present the formulae showing the likelihood
+\(P(\vec{Y}|\vec{\mu})\) and the prior \(p(\vec{\mu})\).} \textbf{Hint:
+a chain rule can be used here
+\(p(\vec{\mu}) = p(\mu_1)p(\mu_{2} | \mu_1)p(\mu_{3} | \mu_2)... p(\mu_{n} | \mu_{n_1})\).}
+
+Yi \(\sim N(\mu_i, variance = 0.2)\), so the likelihood will be:
+
+\textbf{Likelihood:}
+
+\[P(\vec{Y}|\vec{\mu})= \prod_{i=1}^{n} \frac {1}{\sqrt{2\pi0.2}}  e^{-\frac{1}{2 \cdot 0.2}(y - \mu)^2} \propto  e^{-\frac{1}{0.4} \sum_{i=1}^{n} (y_i - \mu_i)^2}\]
+
+For the \textbf{prior} probability \(p(\vec{\mu})\), the chain rule will
+be used as below.
+
+\[p(\mu_1)=1\]
+
+\[p(\mu_{2} | \mu_1) \sim N(\mu_1,0.2) = \frac {1}{\sqrt{2\pi0.2}}  e^{-\frac{1}{2 \cdot 0.2} (\mu_2-\mu_1)^2}\]
+
+\[p(\mu_{3} | \mu_2) \sim N(\mu_2,0.2) = \frac {1}{\sqrt{2\pi0.2}}  e^{-\frac{1}{2 \cdot 0.2} (\mu_2-\mu_3 )^2} \\
+   \vdots \\\]
+
+\[p(\mu_{n} | \mu_{n_1}) \sim N(\mu_{n_1},0.2) = \frac {1}{\sqrt{2\pi0.2}}  e^{-\frac{1}{2 \cdot 0.2}  (\mu_{n_1}- \mu_{n} )^2}\]
+
+Thus, using the chain rule and combining all those equations, the prior
+is:
+
+\[p(\vec{\mu}) = p(\mu_1)p(\mu_{2} | \mu_1)p(\mu_{3} | \mu_2)... p(\mu_{n} | \mu_{n_1}) \propto e^ {- \frac{\sum_{i=2}^{n} (\mu_{i} - \mu_{i-1})^2}{0.4}}\]
+
+\hypertarget{use-bayes-theorem-to-get-the-posterior-up-to-a-constant-proportionality-and-then-find-out-the-distributions-of-mu_i-vecmu_-i-where-vecmu_-i-is-a-vector-containing-all-mu-values-except-of-mu_i.}{%
+\subsubsection{\texorpdfstring{3. Use Bayes' Theorem to get the
+posterior up to a constant proportionality, and then find out the
+distributions of \((\mu_{i} | \vec{\mu_{-i}}\), where \(\vec{\mu_{-i}}\)
+is a vector containing all \(\mu\) values except of
+\(\mu_{i}\).}{3. Use Bayes' Theorem to get the posterior up to a constant proportionality, and then find out the distributions of (\textbackslash{}mu\_\{i\} \textbar{} \textbackslash{}vec\{\textbackslash{}mu\_\{-i\}\}, where \textbackslash{}vec\{\textbackslash{}mu\_\{-i\}\} is a vector containing all \textbackslash{}mu values except of \textbackslash{}mu\_\{i\}.}}\label{use-bayes-theorem-to-get-the-posterior-up-to-a-constant-proportionality-and-then-find-out-the-distributions-of-mu_i-vecmu_-i-where-vecmu_-i-is-a-vector-containing-all-mu-values-except-of-mu_i.}}
+
+Based on the Bayes' Theorem \textbf{Posterior probability \(\propto\)
+Likelihood x Prior probability}
+
+From the previous question the Likelihood \(P(\vec{Y}|\vec{\mu})\) and
+the prior probability p(\(\vec{\mu}\)) are already computed.
+
+The given task is to find the distributions of
+\((\mu_{i}|\vec{\mu_{-i}} ,\vec{Y})\) where \(\vec{\mu_{-i}}\) is a
+vector containing all \(\mu\) values except of \(\mu_{i}\).
+
+Therefore, to find the distributions, the posterior probabilities have
+to be found first. Then such formulae will be investated to see from
+which distribution they come from.
+
+\textbf{Posterior probability}
+
+\[P(\mu_{i}|\vec{\mu_{-i}},\vec{Y})\propto P(\vec{Y}|\vec{\mu})P(\vec{\mu})\]
+
+For \textbf{\(\mu_1\):}
+
+\[P(\mu_{1}|\vec{\mu_{-1}} ,\vec{Y}) \propto e^{-\frac{1}{2 \cdot 0.2} \{ (y_1- \mu_{1} )^2 + (\mu_{2} - \mu_{1})^2 \}} = \\ e^{-\frac{1}{ \frac{0.4}{2}} \{ \mu_{1} - \frac{y_1 + \mu_2}{2} \}^2}\]
+
+Thus, \[\mu_{1}|\vec{\mu_{-1}} \sim N( \frac{y_1 + \mu_2}{2} ,0.1)\]
+
+For \textbf{\(\mu_i\)} ,i=2,\ldots{},n-1:
+
+\[P(\mu_{i}|\vec{\mu_{-i}} ,\vec{Y})  \propto e^{-\frac{1}{2 \cdot 0.2} \{(y_i- \mu_{i} )^2 + (\mu_{i} - \mu_{i-1})^2 + (\mu_{i+1} - \mu_{i})^2 \} } = \\ e^{-\frac{1}{ \frac{0.4}{3}} \{ \mu_{i} - \frac{y_i + \mu_{i-1} + \mu_{i+1}}{3} \}^2}\]
+
+Thus,
+\[\mu_{i}|\vec{\mu_{-i}} \sim N(\frac{y_i + \mu_{i-1} + \mu_{i+1}}{3} ,0.06)\]
+
+For \textbf{\(\mu_n\):}
+
+\[P(\mu_{n}|\vec{\mu_{-n}} ,\vec{Y})  \propto e^{-\frac{1}{2 \cdot 0.2} \{ (y_n- \mu_{n} )^2 + (\mu_{n} - \mu_{n-1})^2 \}} = \\ e^{-\frac{1}{ \frac{0.4}{2}} \{ \mu_{n} - \frac{y_n + \mu_{n-1}}{2} \}^2}\]
+
+Thus, \[\mu_{n}|\vec{\mu_{-n}} \sim N( \frac{y_n + \mu_{n-1}}{2} ,0.1)\]
+
+\hypertarget{use-the-distributions-derived-in-step-3-to-implement-a-gibbs-sampler-that-uses-vecmu0-00-as-a-starting-point.-run-the-gibbs-sampler-to-obtain-1000-values-of-vecmu-and-then-compute-the-expected-value-of-vecmu-by-using-a-monte-carlo-approach.-plot-the-expected-value-of-vecmu-versus-x-and-y-versus-x-in-the-same-graph.-does-it-seem-that-you-have-managed-to-remove-the-noise-does-it-seem-that-the-expected-value-of-vecmu-can-catch-the-true-underlying-dependence-between-y-and-x}{%
+\subsubsection{\texorpdfstring{4. Use the distributions derived in Step
+3 to implement a Gibbs sampler that uses \(\vec{\mu}^0\) =
+(0,\ldots{},0) as a starting point. Run the Gibbs sampler to obtain 1000
+values of \(\vec{\mu}\) and then compute the expected value of
+\(\vec{\mu}\) by using a Monte Carlo approach. Plot the expected value
+of \(\vec{\mu}\) versus X and Y versus X in the same graph. Does it seem
+that you have managed to remove the noise? Does it seem that the
+expected value of \(\vec{\mu}\) can catch the true underlying dependence
+between Y and
+X?}{4. Use the distributions derived in Step 3 to implement a Gibbs sampler that uses \textbackslash{}vec\{\textbackslash{}mu\}\^{}0 = (0,\ldots{},0) as a starting point. Run the Gibbs sampler to obtain 1000 values of \textbackslash{}vec\{\textbackslash{}mu\} and then compute the expected value of \textbackslash{}vec\{\textbackslash{}mu\} by using a Monte Carlo approach. Plot the expected value of \textbackslash{}vec\{\textbackslash{}mu\} versus X and Y versus X in the same graph. Does it seem that you have managed to remove the noise? Does it seem that the expected value of \textbackslash{}vec\{\textbackslash{}mu\} can catch the true underlying dependence between Y and X?}}\label{use-the-distributions-derived-in-step-3-to-implement-a-gibbs-sampler-that-uses-vecmu0-00-as-a-starting-point.-run-the-gibbs-sampler-to-obtain-1000-values-of-vecmu-and-then-compute-the-expected-value-of-vecmu-by-using-a-monte-carlo-approach.-plot-the-expected-value-of-vecmu-versus-x-and-y-versus-x-in-the-same-graph.-does-it-seem-that-you-have-managed-to-remove-the-noise-does-it-seem-that-the-expected-value-of-vecmu-can-catch-the-true-underlying-dependence-between-y-and-x}}
+
+\includegraphics{Report_files/figure-latex/unnamed-chunk-8-1.pdf}
+
+Observing the plot, it can be said the noise has been removed as the
+black line is quite smooth, at least compare to the red line which
+represents Y.
+
+Also, from the form of the line of expected \(\mu\) it can be said that
+the expected value of \(\mu\) can catch the true underlying dependence
+between Y and X as it follows the red line well.
+
+\hypertarget{make-a-trace-plot-for-mu_n-and-comment-on-the-burn-in-period-and-convergence.}{%
+\subsubsection{\texorpdfstring{5. Make a trace plot for \(\mu_n\) and
+comment on the burn-in period and
+convergence.}{5. Make a trace plot for \textbackslash{}mu\_n and comment on the burn-in period and convergence.}}\label{make-a-trace-plot-for-mu_n-and-comment-on-the-burn-in-period-and-convergence.}}
+
+\includegraphics{Report_files/figure-latex/unnamed-chunk-9-1.pdf}
+
+It is possible to observe that the burn-in beriod of \(\mu_{50}\) is
+very small, basically it takes around 10 or less iterations until it is
+stabilized. Therefore it can be concluded that this simulation has a
+small burn-in period.
+
+Finally, it seems that that the chain has converged to the true
+posterior.
+
+\hypertarget{appendix}{%
+\section{Appendix}\label{appendix}}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{knitr}\OperatorTok{::}\NormalTok{opts_chunk}\OperatorTok{$}\KeywordTok{set}\NormalTok{(}\DataTypeTok{echo =} \OtherTok{TRUE}\NormalTok{)}
+\CommentTok{#question1}
+\KeywordTok{set.seed}\NormalTok{(}\DecValTok{12345}\NormalTok{)}
+\NormalTok{MH_normal <-}\StringTok{ }\ControlFlowTok{function}\NormalTok{(tmax, X0)\{}
+\NormalTok{  t=}\DecValTok{1}
+\NormalTok{  X=}\KeywordTok{rep}\NormalTok{(X0,tmax)}
+  \ControlFlowTok{while}\NormalTok{(t }\OperatorTok{<}\StringTok{ }\NormalTok{tmax)\{}
+\NormalTok{    Y <-}\StringTok{ }\KeywordTok{rlnorm}\NormalTok{(}\DecValTok{1}\NormalTok{, X[t], }\DecValTok{1}\NormalTok{)}
+\NormalTok{    U <-}\StringTok{ }\KeywordTok{runif}\NormalTok{(}\DecValTok{1}\NormalTok{,}\DecValTok{0}\NormalTok{,}\DecValTok{1}\NormalTok{)}
+  
+\NormalTok{    alpha_fun <-}\StringTok{ }\ControlFlowTok{function}\NormalTok{(X,Y)\{}
+\NormalTok{      pi_Y =}\StringTok{ }\NormalTok{(Y}\OperatorTok{^}\DecValTok{5}\NormalTok{)}\OperatorTok{*}\KeywordTok{exp}\NormalTok{(}\OperatorTok{-}\NormalTok{Y)}
+\NormalTok{      pi_Xt =}\StringTok{ }\NormalTok{(X}\OperatorTok{^}\DecValTok{5}\NormalTok{)}\OperatorTok{*}\KeywordTok{exp}\NormalTok{(}\OperatorTok{-}\NormalTok{X)}
+\NormalTok{      q_Xt =}\StringTok{ }\KeywordTok{dlnorm}\NormalTok{(X, Y,}\DecValTok{1}\NormalTok{)}
+\NormalTok{      q_Y =}\StringTok{ }\KeywordTok{dlnorm}\NormalTok{(Y,X,}\DecValTok{1}\NormalTok{)}
+\NormalTok{      out =}\StringTok{ }\KeywordTok{min}\NormalTok{(}\DecValTok{1}\NormalTok{,pi_Y}\OperatorTok{*}\NormalTok{q_Xt}\OperatorTok{/}\NormalTok{(pi_Xt}\OperatorTok{*}\NormalTok{q_Y))}
+      \KeywordTok{return}\NormalTok{(out)}
+\NormalTok{    \}}
+      \ControlFlowTok{if}\NormalTok{(U }\OperatorTok{<=}\StringTok{ }\KeywordTok{alpha_fun}\NormalTok{(X[t],Y))\{}
+\NormalTok{        X[t}\OperatorTok{+}\DecValTok{1}\NormalTok{] =}\StringTok{ }\NormalTok{Y}
+\NormalTok{      \}}\ControlFlowTok{else}\NormalTok{\{}
+\NormalTok{        X[t}\OperatorTok{+}\DecValTok{1}\NormalTok{] =}\StringTok{ }\NormalTok{X[t]}
+\NormalTok{        \}}
+\NormalTok{    t=t}\OperatorTok{+}\DecValTok{1}
+\NormalTok{  \}}
+  \KeywordTok{return}\NormalTok{(X)}
+\NormalTok{\}}
+\NormalTok{tmax=}\DecValTok{1000}
+\NormalTok{X0=}\DecValTok{3}
+\KeywordTok{plot}\NormalTok{(}\DecValTok{1}\OperatorTok{:}\NormalTok{tmax, }\KeywordTok{MH_normal}\NormalTok{(tmax,X0),}\StringTok{"l"}\NormalTok{,}\DataTypeTok{xlab=}\StringTok{"Time Series(t)"}\NormalTok{, }\DataTypeTok{ylab=}\StringTok{"X(t)"}\NormalTok{, }\DataTypeTok{main=}\StringTok{"log-Normal Metropolis-Hastings Chain"}\NormalTok{)}
+\CommentTok{# 2}
+\NormalTok{MH_chi <-}\StringTok{ }\ControlFlowTok{function}\NormalTok{(tmax, X0)\{}
+\NormalTok{  t=}\DecValTok{1}
+\NormalTok{  X=}\KeywordTok{rep}\NormalTok{(X0,tmax)}
+  \ControlFlowTok{while}\NormalTok{(t }\OperatorTok{<}\StringTok{ }\NormalTok{tmax)\{}
+\NormalTok{    Y <-}\StringTok{ }\KeywordTok{rchisq}\NormalTok{(}\DecValTok{1}\NormalTok{, }\KeywordTok{floor}\NormalTok{(X[t]}\OperatorTok{+}\DecValTok{1}\NormalTok{))}
+\NormalTok{    U <-}\StringTok{ }\KeywordTok{runif}\NormalTok{(}\DecValTok{1}\NormalTok{,}\DecValTok{0}\NormalTok{,}\DecValTok{1}\NormalTok{)}
+    
+\NormalTok{    alpha_fun <-}\StringTok{ }\ControlFlowTok{function}\NormalTok{(X,Y)\{}
+\NormalTok{      pi_Y =}\StringTok{ }\NormalTok{(Y}\OperatorTok{^}\DecValTok{5}\NormalTok{)}\OperatorTok{*}\KeywordTok{exp}\NormalTok{(}\OperatorTok{-}\NormalTok{Y)}
+\NormalTok{      pi_Xt =}\StringTok{ }\NormalTok{(X}\OperatorTok{^}\DecValTok{5}\NormalTok{)}\OperatorTok{*}\KeywordTok{exp}\NormalTok{(}\OperatorTok{-}\NormalTok{X)}
+\NormalTok{      q_Xt =}\StringTok{ }\KeywordTok{dchisq}\NormalTok{(X, }\KeywordTok{floor}\NormalTok{(Y}\OperatorTok{+}\DecValTok{1}\NormalTok{))}
+\NormalTok{      q_Y =}\StringTok{ }\KeywordTok{dchisq}\NormalTok{(Y,}\KeywordTok{floor}\NormalTok{(X}\OperatorTok{+}\DecValTok{1}\NormalTok{))}
+\NormalTok{      out =}\StringTok{ }\KeywordTok{min}\NormalTok{(}\DecValTok{1}\NormalTok{,pi_Y}\OperatorTok{*}\NormalTok{q_Xt}\OperatorTok{/}\NormalTok{(pi_Xt}\OperatorTok{*}\NormalTok{q_Y))}
+      \KeywordTok{return}\NormalTok{(out)}
+\NormalTok{    \}}
+    
+    \ControlFlowTok{if}\NormalTok{(U }\OperatorTok{<=}\StringTok{ }\KeywordTok{alpha_fun}\NormalTok{(X[t],Y))\{}
+\NormalTok{      X[t}\OperatorTok{+}\DecValTok{1}\NormalTok{] =}\StringTok{ }\NormalTok{Y }
+\NormalTok{    \}}\ControlFlowTok{else}\NormalTok{\{}
+\NormalTok{      X[t}\OperatorTok{+}\DecValTok{1}\NormalTok{] =}\StringTok{ }\NormalTok{X[t]}
+\NormalTok{    \}}
+\NormalTok{    t=t}\OperatorTok{+}\DecValTok{1}
+\NormalTok{  \}}
+  \KeywordTok{return}\NormalTok{(X)}
+\NormalTok{\}}
+\NormalTok{tmax=}\DecValTok{1000}
+\NormalTok{X0 =}\StringTok{ }\DecValTok{3}
+\KeywordTok{plot}\NormalTok{(}\DecValTok{1}\OperatorTok{:}\NormalTok{tmax, }\KeywordTok{MH_chi}\NormalTok{(tmax,X0),}\StringTok{"l"}\NormalTok{,  }\DataTypeTok{xlab=}\StringTok{"Time Series(t)"}\NormalTok{, }\DataTypeTok{ylab=}\StringTok{"X(t)"}\NormalTok{, }\DataTypeTok{main=}\StringTok{"Chi-square Metropolis-Hastings chain"}\NormalTok{)  }
+\KeywordTok{library}\NormalTok{(coda)}
+\NormalTok{f =}\StringTok{ }\KeywordTok{mcmc.list}\NormalTok{()}
+\ControlFlowTok{for}\NormalTok{(X0 }\ControlFlowTok{in} \DecValTok{1}\OperatorTok{:}\DecValTok{10}\NormalTok{)\{}
+\NormalTok{  f[[X0]] =}\StringTok{ }\KeywordTok{as.mcmc}\NormalTok{(}\KeywordTok{MH_chi}\NormalTok{(tmax,X0))}
+\NormalTok{\}}
+\KeywordTok{cat}\NormalTok{(}\StringTok{"The Gelman-Rubin converage anaylsis:}\CharTok{\textbackslash{}n}\StringTok{"}\NormalTok{)}
+\KeywordTok{print}\NormalTok{(}\KeywordTok{gelman.diag}\NormalTok{(f))}
+\KeywordTok{gelman.plot}\NormalTok{(f)}
+\KeywordTok{cat}\NormalTok{(}\StringTok{"The samples mean from Step 1 (Log-likelihood)}\CharTok{\textbackslash{}n}\StringTok{"}\NormalTok{)}
+\KeywordTok{mean}\NormalTok{(}\KeywordTok{MH_normal}\NormalTok{(}\DecValTok{1000}\NormalTok{,}\DecValTok{1}\NormalTok{))}
+\KeywordTok{cat}\NormalTok{(}\StringTok{"The samples mean from Step 2 (chi-sqaure)}\CharTok{\textbackslash{}n}\StringTok{"}\NormalTok{)}
+\KeywordTok{mean}\NormalTok{(}\KeywordTok{MH_chi}\NormalTok{(}\DecValTok{1000}\NormalTok{,}\DecValTok{1}\NormalTok{))}
+\NormalTok{f<-}\ControlFlowTok{function}\NormalTok{(x)\{ }\DecValTok{1}\OperatorTok{/}\KeywordTok{gamma}\NormalTok{(}\DecValTok{6}\NormalTok{)}\OperatorTok{*}\NormalTok{(x}\OperatorTok{^}\DecValTok{6}\NormalTok{)}\OperatorTok{*}\KeywordTok{exp}\NormalTok{(}\OperatorTok{-}\NormalTok{x)\}}
+\NormalTok{gammadist <-}\StringTok{ }\KeywordTok{integrate}\NormalTok{(f ,}\DecValTok{0}\NormalTok{, }\OtherTok{Inf}\NormalTok{ )}
+\KeywordTok{cat}\NormalTok{(}\StringTok{"The real value of the integral is:"}\NormalTok{,}\StringTok{"}\CharTok{\textbackslash{}n}\StringTok{"}\NormalTok{)}
+\NormalTok{gammadist}
+\NormalTok{data <-}\StringTok{ }\KeywordTok{load}\NormalTok{(}\StringTok{"~/Desktop/732A90_VT2020_Materials/chemical.RData"}\NormalTok{)}
+\NormalTok{df<-}\StringTok{ }\KeywordTok{data.frame}\NormalTok{(}\StringTok{"day"}\NormalTok{=X,}\StringTok{"concentration"}\NormalTok{=Y)}
+\KeywordTok{plot}\NormalTok{(df}\OperatorTok{$}\NormalTok{day,df}\OperatorTok{$}\NormalTok{concentration,}\DataTypeTok{xlab=}\StringTok{"Day"}\NormalTok{,}\DataTypeTok{ylab=}\StringTok{"Concentration of chemical"}\NormalTok{,}\DataTypeTok{main=}\StringTok{"Dependency of concentration on days"}\NormalTok{)}
+\CommentTok{#http://www.mit.edu/~ilkery/papers/GibbsSampling.pdf}
+\CommentTok{#we have 50 observations and want to simulate 1000 values of mu}
+\NormalTok{mu=}\KeywordTok{matrix}\NormalTok{(}\DecValTok{0}\NormalTok{,}\DataTypeTok{nrow=}\DecValTok{1000}\NormalTok{,}\DataTypeTok{ncol=}\DecValTok{50}\NormalTok{)}
+\ControlFlowTok{for}\NormalTok{ (i }\ControlFlowTok{in} \DecValTok{2}\OperatorTok{:}\DecValTok{1000}\NormalTok{)\{ }\CommentTok{#first row will remain zero, the initialized}
+  \ControlFlowTok{for}\NormalTok{ (j }\ControlFlowTok{in} \DecValTok{2}\OperatorTok{:}\DecValTok{49}\NormalTok{)\{}
+\NormalTok{    mu[i,}\DecValTok{1}\NormalTok{]<-}\StringTok{ }\KeywordTok{rnorm}\NormalTok{(}\DecValTok{1}\NormalTok{,}\DataTypeTok{mean=}\NormalTok{(Y[}\DecValTok{1}\NormalTok{]}\OperatorTok{+}\NormalTok{mu[i}\DecValTok{-1}\NormalTok{,}\DecValTok{2}\NormalTok{])}\OperatorTok{/}\DecValTok{2}\NormalTok{,}\DataTypeTok{sd=}\FloatTok{0.1}\NormalTok{)  }\CommentTok{#mu_1}
+    
+\NormalTok{    mu[i,j] <-}\StringTok{ }\KeywordTok{rnorm}\NormalTok{(}\DecValTok{1}\NormalTok{,}\DataTypeTok{mean=}\NormalTok{(Y[j] }\OperatorTok{+}\StringTok{ }\NormalTok{mu[i,j}\DecValTok{-1}\NormalTok{] }\OperatorTok{+}\StringTok{ }\NormalTok{mu[i}\DecValTok{-1}\NormalTok{,j}\OperatorTok{+}\DecValTok{1}\NormalTok{])}\OperatorTok{/}\DecValTok{3}\NormalTok{,}\DataTypeTok{sd=}\FloatTok{0.06}\NormalTok{)  }\CommentTok{#mu_ij}
+    
+\NormalTok{    mu[i,}\DecValTok{50}\NormalTok{] <-}\StringTok{ }\KeywordTok{rnorm}\NormalTok{(}\DecValTok{1}\NormalTok{,}\DataTypeTok{mean=}\NormalTok{(mu[i,}\DecValTok{49}\NormalTok{]}\OperatorTok{+}\NormalTok{Y[}\DecValTok{50}\NormalTok{])}\OperatorTok{/}\DecValTok{2}\NormalTok{,}\DataTypeTok{sd=}\FloatTok{0.1}\NormalTok{)  }\CommentTok{#mu_50}
+     
+\NormalTok{  \}}
+\NormalTok{\}}
+\NormalTok{expected_mu <-}\StringTok{ }\KeywordTok{colMeans}\NormalTok{(mu)}
+\KeywordTok{plot}\NormalTok{(X,expected_mu,}\DataTypeTok{type=}\StringTok{"l"}\NormalTok{,}\DataTypeTok{ylab=}\StringTok{""}\NormalTok{)}
+\KeywordTok{lines}\NormalTok{(X,Y,}\DataTypeTok{col=}\StringTok{"red"}\NormalTok{)}
+\KeywordTok{legend}\NormalTok{(}\DecValTok{1}\NormalTok{,}\FloatTok{1.7}\NormalTok{, }\DataTypeTok{legend=}\KeywordTok{c}\NormalTok{(}\StringTok{"Expected mu"}\NormalTok{, }\StringTok{"Y"}\NormalTok{),}
+       \DataTypeTok{col=}\KeywordTok{c}\NormalTok{(}\StringTok{"black"}\NormalTok{, }\StringTok{"red"}\NormalTok{), }\DataTypeTok{lty=}\DecValTok{1}\NormalTok{, }\DataTypeTok{cex=}\FloatTok{0.8}\NormalTok{)}
+\CommentTok{#trace plot for mu_50}
+\KeywordTok{plot}\NormalTok{(mu[,}\DecValTok{50}\NormalTok{],}\DataTypeTok{type =} \StringTok{"l"}\NormalTok{,}\DataTypeTok{main=}\StringTok{"Trace plot of mu_50"}\NormalTok{,}\DataTypeTok{xlab=}\StringTok{"t"}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+
+\end{document}
