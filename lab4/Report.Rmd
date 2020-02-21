@@ -56,7 +56,7 @@ plot(1:tmax, MH_normal(tmax,X0),"l",xlab="Time Series(t)", ylab="X(t)", main="lo
 
  In above case, looking at the time series plot of the chain it would be plausible to say that at the beginning the plot have a good image of the chain and the burn-in period seems almost insignificant. It would be possible to say that there is no need to reject part of the sample at the beginning. However, it is observed that some periods where the algorithm constantly rejects values of y and the chain remains stable at the same point, as it happens for example at around t=400 to t=800.
 
- In the end the chain, it can be seen that the result does not converge to the target distribution ($\pi(x)\propto x^5e^{-x}$) at t=1000
+In the end the chain, it can be seen that the result does not converge to the target distribution ($\pi(x)\propto x^5e^{-x}$) at t=1000
 
 
 ### 2
@@ -148,7 +148,7 @@ cat("The real value of the integral is:","\n")
 gammadist
 ```
 
- Compare the value obtained from the above step 1 and step 2, it can be seen that the real value only close to the value that is estimated from the chi-sqaure as proposal distribution, which is 5.950549. 
+Compare the value obtained from the above step 1 and step 2, we can say that the sample mean we estimated from the chi-sqaure is very close to the real value from the Gamma(6,1) distribution, which is equal to 5.950549. 
 
 
 
