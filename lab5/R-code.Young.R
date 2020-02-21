@@ -24,7 +24,4 @@ points(y_hat, col="red")
   ## prediction points on the plot.
 
 # 1-3. Perform bootstrap of B=2000
-estimate_data <- data.frame(Y=y_hat, X=Day)
-head(estimate_data)
-estimate_data[89,]
-estimate_data[366,]
+library(boot)
