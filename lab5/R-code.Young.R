@@ -24,4 +24,17 @@ points(y_hat, col="red")
   ## prediction points on the plot.
 
 # 1-3. Perform bootstrap of B=2000
+
 library(boot)
+statistic <- function(data, vn){
+  data <- data[vn,]
+  loess_fit <- loess(Draft_No~Day_of_year, data=data)
+  y_hat <- predict(loess_fit, newdata = data$Day_of_year)
+  x_a <- data$Day_of_year[which.min(y_hat)]
+  x_b <- data$Day_of_year[which.max(y_hat)]
+  t_stat <- (y_hat[x_b]-y_hat[x_a]) / (x_b-x_a)
+  return(t_stat)
+}
+res <- boot(data=data, statistic = statistic, R=2000)
+res
+res$t0
