@@ -154,3 +154,4 @@ length(result=="Reject") / length(result)
   ## The power of the test is 1, when the possible values of
   ## alphas are ranged from 0.1 to 10, with significant value
   ## of 0.05.
+
