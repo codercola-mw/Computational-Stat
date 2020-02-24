@@ -102,11 +102,55 @@ y_gen <- function(X, alpha){
   n <- dim(X)[1]
   Y <- c()
   for (i in 1:n){
-    x <- X[i]
+    x <- X[i,1]
     set.seed(i)
     beta <- rnorm(1, mean=183, sd=10)
-    y <- max(0, min(0, (alpha*x)+beta))
+    y <- max(0, min(366, ((alpha*x)+beta)))
     Y <- append(Y, y)
   }
-  return(Y)
+  return(data.frame(Draft_No=Y))
 }
+
+Y <- y_gen(X, alpha=0.1)
+new_data <- cbind(X, Y)
+
+permut_test(new_data, 200)
+
+  ## H0: Data is random    H1: Data is not random
+
+  ## Since Y values are generated with accordance to the 
+  ## values of X, it is expected that this new data is likely
+  ## to be random --- therefore very low p-value is expected
+  ## to be returned so that the null hypothesis can be rejected.
+
+  ## when the function is run, returned value is 0.
+  ## Null hypothesis is rejected, therefore this data is not\
+  ## random.
+
+result <- c()
+sequence <- seq(from=0.2, to=10, by=0.1)
+
+for (i in sequence){
+  Y <- y_gen(X, alpha=i)
+  new_data <- cbind(X, Y)
+  
+  if (permut_test(new_data, 200) < 0.05) {
+    result <- append(result, "Reject")
+  } else {
+    result <- append(result, "Do not reject")
+  }
+}
+
+cat("The power of this test is: ", "\n")
+length(result=="Reject") / length(result)
+
+  ## power of the test: probability that the test rejects the null hypothesis (H0) when a specific alternative hypothesis (H1) is true.
+  ## [https://en.wikipedia.org/wiki/Power_(statistics)]
+
+  ## Since Y value of the dataset is produced based on the
+  ## values of X, it is known that the data is not random,
+  ## therefore the alternative hypothesis is true.
+
+  ## The power of the test is 1, when the possible values of
+  ## alphas are ranged from 0.1 to 10, with significant value
+  ## of 0.05.
