@@ -155,3 +155,20 @@ length(result=="Reject") / length(result)
   ## alphas are ranged from 0.1 to 10, with significant value
   ## of 0.05.
 
+
+# Question 2.
+
+## 2-1. Import data. Histogram of price, distribution, mean price
+
+data <- readxl::read_xls("~/Computational Stat/732A90_VT2020_Materials/prices1.xls")
+hist(data$Price, breaks = 20, main="Histogram of Price", xlab="Price")
+
+  ## The above histogram seems to have a distribution similar
+  ## to gamma distribution. The data is skewed to right, and
+  ## the support of this distribution is positive real numbers.
+
+cat("Mean value of the prices: ", "\n")
+mean(data$Price)
+
+## 2-2. Estimate mean price using bootstrap
+library(boot)
