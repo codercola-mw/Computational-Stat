@@ -37,12 +37,76 @@ statistic <- function(data, vn){
   t_stat <- (max(y_hat)-min(y_hat)) / (x_b-x_a)
   return(t_stat)
 }
+
+set.seed(12345)
 res <- boot(data=data, statistic = statistic, R=2000)
-hist(res$t, breaks=30, main="Histogram of T-Statistics",
+hist(res$t, breaks=50, main="Histogram of T-Statistics",
      xlab="T Statistic")
 cat("The p-value of the distribution of T statistics is: ", "\n")
 mean(res$t > 0)
+  ## H0: T-stat = 0. H1: T-stat > 0
+  ## p-value: probability of obtaining test results at least
+  ##     as extreme as the results actually observed during
+  ##     the test, assuming that the null hypothesis is correct.
+    ##[Aschwanden, Christie (2015-11-24). "Not Even Scientists Can Easily Explain P-values". FiveThirtyEight. Archived from the original on 25 September 2019. Retrieved 11 October 2019.]
+
+
   ## When the bootstrap is performed, the resulting histogram
   ## seems that nearly all t-statistics are placed below 0.
-  ## Furthermore, the p-value is very small.
-  ## It would be plausible to conclude that this data is random.
+  ## However, the p-value under null hypothesis is very small.
+  ## (see definition of p-value above)
+  ## It would be plausible to conclude that the null 
+  ## hypothesis is rejected, therefore the data is not random.
+  ## This result may be caused as polinomial regression is
+  ## used to make prediction, thus relationship is given
+  ## while prediction is made.
+
+## 1-4. Permutation hypothesis test
+### the function returns p-value, B=2000
+
+permut_test <- function(data, B){
+  stat = numeric(B)
+  n = dim(data)[1]
+  for (b in 1:B){
+    set.seed(b)
+    Gb = sample(data$Day_of_year, n)
+    fit1 = loess(data$Draft_No~Gb)
+    y_hat = predict(fit1, newdata = Gb)
+    x_a <- Gb[which.min(y_hat)]
+    x_b <- Gb[which.max(y_hat)]
+    t_stat <- (max(y_hat)-min(y_hat)) / (x_b-x_a)
+    stat[b] <- t_stat
+  }
+  loess_fit <- loess(Draft_No~Day_of_year, data=data)
+  y_hat <- predict(loess_fit, newdata = data$Day_of_year)
+  x_a <- data$Day_of_year[which.min(y_hat)]
+  x_b <- data$Day_of_year[which.max(y_hat)]
+  t_stat <- (max(y_hat)-min(y_hat)) / (x_b-x_a)
+  return(mean(abs(stat) >= abs(t_stat)))
+}
+
+permut_test(data, 2000)
+
+  ## H0: data is random   H1: data is not random
+  ## using two-sided test.
+
+  ## p-value is 0.144 which is not low. It would be 
+  ## plausible to conclude that this hypothesis testing
+  ## hardly rejects the null hypothesis and thus the data
+  ## could be random.
+
+
+## 1-5. crude estimate of power of test
+X <- Day
+y_gen <- function(X, alpha){
+  n <- dim(X)[1]
+  Y <- c()
+  for (i in 1:n){
+    x <- X[i]
+    set.seed(i)
+    beta <- rnorm(1, mean=183, sd=10)
+    y <- max(0, min(0, (alpha*x)+beta))
+    Y <- append(Y, y)
+  }
+  return(Y)
+}
