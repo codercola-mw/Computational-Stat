@@ -1,0 +1,74 @@
+---
+title: "lab5_mecon"
+author: "Weng Hang Wong"
+date: "2/21/2020"
+output: pdf_document
+---
+
+# Question 2.
+
+### 1.The data you are going to continue analyzing is the database of home prices in Albuquerque, 1993. The variables present are Price; SqFt: the area of a house; FEATS: number of features such as dishwasher, refrigerator and so on; Taxes: annual taxes paid for the house.
+
+First, we plot the histogram of Price below. From the first glance, we can say that it is a gamma distribution. And we compute the mean of the housing price from the data, it is 1080.473.
+```{r, echo=F}
+data =read.csv2("~/Desktop/732A90_VT2020_Materials/prices1.csv") 
+hist(data$Price)
+
+cat("The mean of the housing price:\n")
+mean(data$Price)
+
+
+```  
+
+### 2. Estimate the distribution of the mean price of the house using bootstrap. Determine the bootstrap bias–correction and the variance of the mean price. Compute a 95% confidence interval for the mean price using bootstrap percentile, bootstrap BCa, and first–order normal approximation 
+
+
+First we estimate the mean and the variance by using *boot()*, so we computed the bootstrap bias-correction is 1.052336 and the variance of the mean price is 37.73659. Next, we want to know the mean price in a 95% confidence Interval,  using bootstrap percentile is (1013, 1158), bootstrap BCa is(1016, 1164) and first-order normal approximation is (1005, 1153)
+```{r, echo=F}
+require("boot")
+library(boot)
+# B = 1000
+# n = dim(data)[1]
+# stat = c()
+# for (b in 1:B){
+#   bootstrap_sample = sample(data$Price, n, replace = T)
+#   stat[b] = mean(bootstrap_sample)
+# }
+stat <- function(data,vn){
+  data<- data[vn,]
+  stat0 <- mean(data)
+  return(stat0)
+}
+price = as.matrix(data$Price)
+res <- boot(data=price, stat, R=1000)
+cat("The bootstrap bias-correction:\n")
+print(res)
+
+cat("The bootstrap estimated mean is:\n")
+mean(res$t)
+
+cat("95% confidence interval is: \n")
+print(boot.ci(res))
+
+plot(res)
+
+```
+
+### 3. Estimate the variance of the mean price using the jackknife and compare it with the bootstrap estimate
+
+To estimate the variance of the mean price, we can use the *jackknife()* function, from below caculation, we can find the varaince of 36.34434 from *jack.se*. Comparing to the bootstrap estimiate(37.73659), Jackknife estimate's variance is a bit smaller but both of them are very close to each other.
+```{r}
+library(bootstrap)
+n<-nrow(price)
+B =1000
+jack_mean=c()
+for(i in 1:B){
+  jack_sam = sample(price, size=n , replace=T)
+  jack_mean[i] = mean(price)[-i]
+}
+
+
+var_jack
+```
+
+### 4. Compare the confidence intervals obtained with respect to their length and the location of the estimated mean in these intervals.
