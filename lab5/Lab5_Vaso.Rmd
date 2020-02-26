@@ -22,7 +22,7 @@ df <- data.frame("X"=data$Day_of_year,"Y"=data$Draft_No)
 ```
 
 
-```{r}
+```{r echo=F}
 plot(df$X,df$Y,main="Draft number vs Day of Year",xlab="Day of Year"
      ,ylab="Draft number")
 ```
@@ -32,7 +32,7 @@ As we can see from the scatterplot, it seems that there isn't any specific patte
 
 ### 2. Compute an estimate $\hat{Y}$ of the expected response as a function of X by using a loess smoother (use loess()), put the curve $\hat{Y}$ versus X in the previous graph and state again whether the lottery looks random.
 
-```{r}
+```{r echo=F}
 model <- loess(Y~X,data=df)
 plot(df$X,df$Y,main="Draft number vs Day of Year",xlab="Day of Year"
      ,ylab="Draft number")
@@ -57,7 +57,7 @@ For this, we estimate the distribution of T using a non-parametric bootstrap wit
 That means that from the original data we generate 2000 different samples with replacement.
 
 
-```{r}
+```{r echo=F,warning=F,message=F}
 library(boot)
 set.seed(12345)
 
@@ -109,9 +109,17 @@ $X_b = argmax_X\hat{Y} (X)$, $X_a = argmin_X\hat{Y} (X)$ .
 
 The difference between bootstrap and permutation tests is that in bootstrap resamples are drawn with replacement whereas in permutation test resamples are drawn without replacement.
 
-```{r}
+```{r echo=F,warning=F,message=F}
 set.seed(12345)
 permutation <- function(data,B){
+  model <- loess(Y~X,data=data)  
+  Yhat1 <- model$fitted
+  Xa1 <- data$X[which.min(Yhat1)]
+  Xb1 <-  data$X[which.max(Yhat1)]
+  Y_a1 <- min(Yhat1)
+  Y_b1 <- max(Yhat1)  
+  stat0 <- (Y_b1 - Y_a1)/(Xb1-Xa1) 
+  
   stat=numeric(B)
   n=dim(data)[1]
   for (i in 1:B){
@@ -124,14 +132,13 @@ permutation <- function(data,B){
     Y_b <- max(Yhat)
     stat[i]= (Y_b - Y_a)/(Xb-Xa)
   }
- stat0 <- (Y_b - Y_a)/(Xb-Xa)
- return(list("stat"=stat0 ,"p-value"=mean(stat>stat0)))
+ return(list("stat"=stat0 ,"p-value"=(mean(abs(stat)>= abs(stat0)))))
 }
 permutation(df,2000)
 
 ```
 
-Based on the p-value which is equal to 0.669>0.05 we fail to reject the null hypothesis, so based on this test Lottery is random.
+Based on the p-value which is equal to 0.159>0.05 we fail to reject the null hypothesis, so based on this test Lottery is random.
 
 
 ### 5. Make a crude estimate of the power of the test constructed in Step 4:
@@ -139,7 +146,7 @@ Based on the p-value which is equal to 0.669>0.05 we fail to reject the null hyp
 **(a) Generate (an obviously non-random) dataset with n = 366 observations by using same X as in the original data set and Y(x)= max(0, min($\alpha$x + $\beta$, 366)), where $\alpha$ = 0.1 and $\beta \sim$ N(183,sd = 10).**
 
 
-```{r warning=F}
+```{r echo=F,warning=F,message=F}
 set.seed(12345)
 newX <- df$X
 newY <- vector(length=366)
@@ -158,22 +165,71 @@ newdata <- data.frame("X"= newX,"Y"= newY)
 **(b) Plug these data into the permutation test with B = 200 and note whether it was rejected.**
 
 
-```{r}
+```{r echo=F,warning=F,message=F}
 permutation(newdata,200)
+
 ```
 
-Using the new dataset that we constructed we get 0.415>0.05 as p-value and thus we fail to reject the null hypothesis, so based on this test Lottery is random.
+Using the new dataset that we constructed we get 0 <0.05 as p-value and thus we reject the null hypothesis, so based on this test Lottery is not random.
 
 
 **(c) Repeat Steps 5a-5b for $\alpha$= 0.2, 0.3, ...,10.**
+**What can you say about the quality of your test statistics considering the value of the power?**
 
-```{r warning=F}
-X_rep <- df$X
-b <- rnorm(366,183,10)
-a<- seq(0.2,10,0.1)
+
+```{r echo=F,warning=F,message=F}
+set.seed(12345)
+a <- seq(0.2,10,0.1)
+
+#Function to generate data for different values of a
+data_gen <- function(a){
+  
+  newX <- df$X
+  newY <- vector(length=366)
+  b <- rnorm(366,183,10)
+
+  for (i in 1:366){
+    newY[i] <- max(0, min(a*newX[i]+b[i],366))
+  }
+  data3 <- data.frame("X"= newX,"Y"= newY)
+ return(data3)
+}
+
+#permutations test
+result <- c()
+
+for (i in 1: length(a)){
+  
+  new_data <- data_gen(a[i])
+  
+  if (permutation(new_data, 200)$`p-value` < 0.05) {
+    result <- append(result, "Reject")
+  } else {
+    result <- append(result, "Fail to  reject")
+  }
+}
+
+cat("The number of rejections is: ", "\n")
+length(result=="Reject")
+
+cat("The power of this test is: ", "\n")
+length(result=="Reject") / length(result)
+
 
 ```
 
+First, we observe that for all values of $\alpha$ the null hypothesis is rejected and we would say that this was expected as the data generated are not random.
+
+The power of a hypothesis test is defined as the probability that the test rejects the null hypothesis when, actually, the null hypothesis is not true, i.e. correctly reject $H_0$.
+
+It can be written mathematically as: **power= P(reject $H_0$| $H_0$ is not true)**.
+
+Type II error in statistics is defined as $\beta=$P(accept $H_0$| $H_0$ is not true) and thus the power of the test can be written as 1-$\beta$= P(reject $H_0$| $H_0$ is not true)
+and because the power is a probability its values range from 0 to 1.
+
+So, from the definiton of the power, as the power increases the probability of making a type II error($\beta$) decreases.
+
+To find the value of the power, we did the permutations tests for all the different values of $\alpha$ and then computed the percent of correct rejections. In the end we got a value of 1 which mean that our test statistics is good.
 
 
 
@@ -184,11 +240,11 @@ a<- seq(0.2,10,0.1)
 
 ### 1. Plot the histogram of Price. Does it remind any conventional distribution? Compute the mean price.
 
-```{r warning=F}
+```{r echo=F,warning=F,message=F}
 houses <- read_excel("C:/Users/Vaso/Desktop/data computational/prices1.xls")
 ```
 
-```{r}
+```{r echo=F,warning=F,message=F}
 hist(houses$Price,breaks=20,main="Price histogram")
 
 mean(houses$Price)
@@ -201,7 +257,7 @@ The mean price is 1080.473.
 ### 2. Estimate the distribution of the mean price of the house using bootstrap. Determine the bootstrap bias-correction and the variance of the mean price. Compute a 95% confidence interval for the mean price using bootstrap percentile, bootstrap BCa, and first-order normal approximation (**Hint**: use boot(),boot.ci(),plot.boot(),print.bootci()).
 
 
-```{r}
+```{r echo=F,warning=F,message=F}
 set.seed(12345)
 
 stat <- function(data, ind) {
@@ -224,14 +280,14 @@ The blue vertical line represents the mean of the estimated mean prices,which is
 The bias correction estimator is $2T(D) - \frac{1}{B} \sum_{i=1}^{B} T_i^*$.
 Using R to calculate this we obtain:
 
-```{r warning=F}
+```{r echo=F,warning=F,message=F}
 T1 = 2*res1$t0 - mean(res1$t)
 cat("The bias corrections is:",T1,"\n")
 ```
 
 ?????? TOO CLOSE TO REAL VALUE
 
-```{r}
+```{r echo=F,warning=F,message=F}
 B <- 2000
 variance  <- sum(res1$t - mean(res1$t))^2 / (B-1)
 cat("The variance of the estimator is:",variance,"\n")
@@ -261,7 +317,7 @@ Those intervals are computed using $\hat{\sigma_B}$ which is the sd of the boots
 So, the 95% CI is: $\bar{T} \pm z_{\frac{\alpha}{2}} \hat{\sigma_B}$.
 
 
-```{r warning=F}
+```{r echo=F,warning=F,message=F}
 print(boot.ci(res1))
 ```
 
@@ -274,9 +330,9 @@ Running the boot.ci() function we got those results:
 **First-order normal approximation Bootstrap CI:** (1011, 1151 ) 
 
 
-###3. Estimate the variance of the mean price using the jackknife and compare it with the bootstrap estimate
+### 3. Estimate the variance of the mean price using the jackknife and compare it with the bootstrap estimate
 
-```{r}
+```{r echo=F,warning=F,message=F}
 #n<=B for jackknife
 set.seed(12345)
 n <- dim(houses)[1]
@@ -293,10 +349,10 @@ var_jack
 Using the jackknife algorithm the variance of the mean price is 9.934446e-27 and it's smaller than the variance obtained using the bootstrap estimate(4.221145e-24 ). Thus, the uncertainty of the estimator obtained using Jackknife is smaller compared to Bootstrap method.
 
 
-###4. Compare the confidence intervals obtained with respect to their length and the location of the estimated mean in these intervals.
+### 4. Compare the confidence intervals obtained with respect to their length and the location of the estimated mean in these intervals.
 
 
-```{r}
+```{r echo=F,warning=F,message=F}
 hist(res1$t,main = "Histogram of estimated mean price",col="pink"
      ,xlab="Estimated mean price")
 abline(v=estim_mean,col="blue")
@@ -324,3 +380,9 @@ Considering the length of the CIs the wider one is the BCa(length=144) and the n
 
 However, it seems that all the three confidence intervals have more or less the same length and no significant differences can be detected between them.
 
+\newpage 
+
+# Appendix
+
+```{r ref.label=knitr::all_labels(), echo=T, eval=F}
+```
