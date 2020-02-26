@@ -124,7 +124,7 @@ permut_test(new_data, 200)
   ## to be returned so that the null hypothesis can be rejected.
 
   ## when the function is run, returned value is 0.
-  ## Null hypothesis is rejected, therefore this data is not\
+  ## Null hypothesis is rejected, therefore this data is not
   ## random.
 
 result <- c()
