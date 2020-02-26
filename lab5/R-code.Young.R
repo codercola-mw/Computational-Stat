@@ -68,7 +68,6 @@ permut_test <- function(data, B){
   stat = numeric(B)
   n = dim(data)[1]
   for (b in 1:B){
-    set.seed(b)
     Gb = sample(data$Day_of_year, n)
     fit1 = loess(data$Draft_No~Gb)
     y_hat = predict(fit1, newdata = Gb)
@@ -84,7 +83,7 @@ permut_test <- function(data, B){
   t_stat <- (max(y_hat)-min(y_hat)) / (x_b-x_a)
   return(mean(abs(stat) >= abs(t_stat)))
 }
-
+set.seed(12345)
 permut_test(data, 2000)
 
   ## H0: data is random   H1: data is not random
@@ -171,4 +170,55 @@ cat("Mean value of the prices: ", "\n")
 mean(data$Price)
 
 ## 2-2. Estimate mean price using bootstrap
+### perform bootstrap
 library(boot)
+data1 <- as.data.frame(data$Price)
+
+b_stat <- function(data, vn){
+  data <- data[vn,]
+  return(mean(data))
+}
+set.seed(12345)
+b_res <- boot(data = data1, statistic = stat, R = 2000)
+
+### determine the distribution of bootstrap simulation
+plot(b_res)
+cat("The mean of simulated statistics is ", "\n")
+mean(b_res$t)
+  ## This makes sense because according to the Central Limit
+  ## Theorem(CLT), the distribution of mean values of the 
+  ## samples converges to normal distribution.
+  ## Above plot shows symmetric bell-shaped distribution,
+  ## with mean value ----.
+
+### bias-correction and the variance of the mean price
+
+cat("The variance of the mean price using bootstrap sampling is: ", "\n")
+var(res$t)
+
+### 95% confidence intervals
+cat("95% Confidence Intervals Using Different Standards:", "\n")
+boot.ci(b_res)
+
+
+## 2-3. jackknife to estimate variance of mean price, compare with bootstrap
+library(bootstrap)
+
+j_statistic <- function(data){
+  return(mean(data))
+}
+
+j_res <- jackknife(x = data1[,1], theta = j_statistic)
+
+cat("The estimated variance of the mean price using jackknife is: ", "\n")
+j_res$jack.se
+
+  ## The estimated variance, which is a standard error of
+  ## the statistics after running jackknife algorithm, turned
+  ## out to be having less variance. This is because jackknife
+  ## algorithm makes a statistic with data, which only one
+  ## value is removed, so the resulting statistics are very 
+  ## likely to be similar to each other
+
+
+## 2-4. Comparing confidence intervals
