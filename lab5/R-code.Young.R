@@ -193,7 +193,17 @@ mean(b_res$t)
 
 ### bias-correction and the variance of the mean price
 
-cat("The variance of the mean price using bootstrap sampling is: ", "\n")
+cat("The variance of the mean price using bootstrap bias-correction is:", "\n")
+b <- length(b_res$t)
+t <- 2*mean(data$Price)
+b_res_bc <- c()
+for (i in 1:b){
+  t_i <- t - mean(b_res$t[1:i])
+  b_res_bc <- append(b_res_bc, t_i)
+}
+var(b_res_bc)
+
+cat("The variance of the mean price without using bootstrap bias-correction is: ", "\n")
 var(res$t)
 
 ### 95% confidence intervals
@@ -213,6 +223,7 @@ j_res <- jackknife(x = data1[,1], theta = j_statistic)
 cat("The estimated variance of the mean price using jackknife is: ", "\n")
 j_res$jack.se
 
+  ################# THIS PART NEEDS TO BE CHANGED
   ## The estimated variance, which is a standard error of
   ## the statistics after running jackknife algorithm, turned
   ## out to be having less variance. This is because jackknife
@@ -222,3 +233,5 @@ j_res$jack.se
 
 
 ## 2-4. Comparing confidence intervals
+
+
