@@ -204,7 +204,7 @@ for (i in 1:b){
 var(b_res_bc)
 
 cat("The variance of the mean price without using bootstrap bias-correction is: ", "\n")
-var(res$t)
+var(b_res$t)
 
 ### 95% confidence intervals
 cat("95% Confidence Intervals Using Different Standards:", "\n")
