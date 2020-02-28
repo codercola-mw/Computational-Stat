@@ -1,5 +1,5 @@
 ---
-title: ''
+title: 'Lab 5 Vaso'
 author: "Vasileia Kampouraki"
 date: "20/2/2020"
 output: pdf_document
@@ -51,7 +51,7 @@ $X_b = argmax_X\hat{Y} (X)$, $X_a = argmin_X\hat{Y} (X)$ to check whether the lo
 
 So the hypothesis test we want to conduct is:
 
-$H_0:$ T=0 lottery is random  vs. $H_1:$ T$\neq0:$ lottery is not random. (NOT SURE)
+$H_0:$ $T \leq 0$ lottery is random  vs. $H_1:$ T$>0:$ lottery is not random.
 
 For this, we estimate the distribution of T using a non-parametric bootstrap with B=2000.
 That means that from the original data we generate 2000 different samples with replacement.
@@ -103,7 +103,9 @@ length(which(res$t>0))/2000
 
 We want to test the hypothesis: 
 
-$H_0$: Lottery is random vs. $H_1$: Lottery is non-random by using a permutation test and T statistics $T=\frac{\hat{Y(X_b)}-\hat{Y(X_a)}}{X_b-X_a}$ ,where 
+$H_0$: T=0 Lottery is random vs. $H_1$: $T \neq 0$ Lottery is non-random by using a
+
+permutation test and T statistics $T=\frac{\hat{Y(X_b)}-\hat{Y(X_a)}}{X_b-X_a}$ ,where 
 
 $X_b = argmax_X\hat{Y} (X)$, $X_a = argmin_X\hat{Y} (X)$ .
 
@@ -132,12 +134,18 @@ permutation <- function(data,B){
     Y_b <- max(Yhat)
     stat[i]= (Y_b - Y_a)/(Xb-Xa)
   }
- return(list("stat"=stat0 ,"p-value"=(mean(abs(stat)>= abs(stat0)))))
+ return(list("stat"=stat ,"p-value"=(mean(abs(stat)>= abs(stat0)))))
 }
-permutation(df,2000)
+res_permut = permutation(df,2000)
+
+cat("p-value=","\n")
+res_permut$`p-value`
+
+hist(res_permut$stat,breaks = 50,main="Distribution of T",col="blue",xlab="t")
 
 ```
 
+Based on our hypothesis test the further the values of the T-statistics are from 0 the stronger is the evidence against the null hypothesis. Looking at the histogram of T we would say that the majority of values are around zero but then we have to check also the p-value to make a conclusion.
 Based on the p-value which is equal to 0.159>0.05 we fail to reject the null hypothesis, so based on this test Lottery is random.
 
 
@@ -166,8 +174,9 @@ newdata <- data.frame("X"= newX,"Y"= newY)
 
 
 ```{r echo=F,warning=F,message=F}
-permutation(newdata,200)
-
+new_permut = permutation(newdata,200)
+cat("p-value=","\n")
+new_permut$`p-value`
 ```
 
 Using the new dataset that we constructed we get 0 <0.05 as p-value and thus we reject the null hypothesis, so based on this test Lottery is not random.
@@ -247,7 +256,7 @@ houses <- read_excel("C:/Users/Vaso/Desktop/data computational/prices1.xls")
 ```{r echo=F,warning=F,message=F}
 hist(houses$Price,breaks=20,main="Price histogram")
 
-mean(houses$Price)
+meandata <- mean(houses$Price)
 ```
 
 Looking at the histogram of Prices we wouldn't say that it reminds us any of the conventional distributions as the shape of the histogram is not clear.
@@ -272,27 +281,30 @@ estim_mean <- mean(res1$t) #mean of the estimated mean prices
 hist(res1$t,main = "Histogram of estimated mean price",col="pink"
      ,xlab="Estimated mean price")
 abline(v=estim_mean,col="blue")
+
+#plot(res1) #gives also the qq-plot
 ```
 
 Based on the above histogram we could say that the mean price is normally distributed.
 The blue vertical line represents the mean of the estimated mean prices,which is 1079.983.
+We could also get this result and a qq-plot by using the *plot.boot()* function but this looks nicer in terms of appearence and both give the same histogram.
 
-The bias correction estimator is $2T(D) - \frac{1}{B} \sum_{i=1}^{B} T_i^*$.
+The bias-correction estimator is $$2T(D) - \frac{1}{B} \sum_{i=1}^{B} T_i^*$$.
+
 Using R to calculate this we obtain:
 
 ```{r echo=F,warning=F,message=F}
 T1 = 2*res1$t0 - mean(res1$t)
-cat("The bias corrections is:",T1,"\n")
+cat("The bias-corrected bootstrap mean is:",T1,"\n")
 ```
 
-?????? TOO CLOSE TO REAL VALUE
+The bias-correction mean seems good, as it's close to the real mean(1080.473) and thus we expect bootstrap mean and bias-corrected bootstrap mean to be around this price. Also, we want the bias to be small.
 
 ```{r echo=F,warning=F,message=F}
-B <- 2000
-variance  <- sum(res1$t - mean(res1$t))^2 / (B-1)
-cat("The variance of the estimator is:",variance,"\n")
+cat("The variance of the estimator is:","\n")
+as.numeric(var(res1$t))
 ```
-The variance of the estimator is very small which means the uncertainty is very low, and the estimator seems to be accurate.
+
 
 Another measure of uncertainty is the confidence intervals.
 We will compute the different types of confidence intervals using the boot.ci() function.
@@ -323,11 +335,11 @@ print(boot.ci(res1))
 
 Running the boot.ci() function we got those results:
 
-**Bootstrap Confidence Interval via Percentiles:**  (1013, 1152 )
+**Bootstrap Confidence Interval via Percentiles:**  (1013, 1152)
 
-**Bootstrap BCa CI:** (1018, 1162 )
+**Bootstrap BCa CI:** (1018, 1162)
 
-**First-order normal approximation Bootstrap CI:** (1011, 1151 ) 
+**First-order normal approximation Bootstrap CI:** (1011, 1151) 
 
 
 ### 3. Estimate the variance of the mean price using the jackknife and compare it with the bootstrap estimate
@@ -342,11 +354,11 @@ for (i in 1:n){
   T[i] = n*mean(houses$Price) - (n-1)*mean(houses$Price[-i])
 } 
 
-var_jack = sum(T-mean(T))^2 / (n*(n-1))
+var_jack = sum((T-mean(T))^2 )/ (n*(n-1))
 var_jack
 ```
 
-Using the jackknife algorithm the variance of the mean price is 9.934446e-27 and it's smaller than the variance obtained using the bootstrap estimate(4.221145e-24 ). Thus, the uncertainty of the estimator obtained using Jackknife is smaller compared to Bootstrap method.
+Using the jackknife algorithm the variance of the mean price is 1320.911  and it's a bit bigger than the variance obtained using the bootstrap estimate( 1284.358). 
 
 
 ### 4. Compare the confidence intervals obtained with respect to their length and the location of the estimated mean in these intervals.
@@ -380,9 +392,3 @@ Considering the length of the CIs the wider one is the BCa(length=144) and the n
 
 However, it seems that all the three confidence intervals have more or less the same length and no significant differences can be detected between them.
 
-\newpage 
-
-# Appendix
-
-```{r ref.label=knitr::all_labels(), echo=T, eval=F}
-```
