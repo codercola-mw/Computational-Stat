@@ -1,0 +1,165 @@
+---
+title: "lab6_mecon"
+author: "Weng Hang Wong"
+date: "2/28/2020"
+output: pdf_document
+---
+# Question 1. Genetic algorithm
+
+### 1. Define the function 
+$$f(x) := \frac{x^2}{e^2} - 2exp(-(9sinx)/(x^2+x+1)) $$
+
+```{r}
+f <- function(x){
+  f=((x^2)/exp(x) )- (2*exp(-(9*sin(x))))/((x^2)+x+1)
+  return(f)
+}
+```
+
+
+### 2. Define the function *crossover()*: for two scalars x and y it returns their “kid” as (x+y)/2
+```{r}
+crossover <- function(x, y){
+  kid = (x+y)/2
+  return(kid)
+}
+```
+
+
+### 3. Define the function *mutate()* that for a scalar x returns the result of the integer division $x^2$ mod 30. (Operation mod is denoted in R as %%).
+
+```{r}
+mutate <- function(x){
+  res = x^2 %% 30
+  return(res)
+}
+
+```
+
+### 4. Write a function that depends on the parameters *maxiter* and **mutprob* and:
+
+#### a. 
+Now we plot function $f(x) := \frac{x^2}{e^2} - 2exp(-(9sinx)/(x^2+x+1)) $ with the argument in the range from 0 to 30. From the graph below, we only see the points are mostly at the value of 0, which is the maximum value that the points can reach.
+
+```{r}
+fx=c()
+sequen = seq(0,30,5)
+for( i in 1:length(sequen)){
+  fx[i] = (f(sequen[i]))
+}
+plot(fx,main="Function f(x)", ylab="f(x)", type="l")
+
+
+
+```
+
+
+#### b. Define an initial population for the genetic algorithm as X = (0, 5, 10, 15, . . . , 30).
+
+```{r}
+# the initial population
+X = seq(0,30, 5)
+X
+```
+
+#### c. Computes vector *Values* that contains the function values for each population point.
+
+```{r}
+Values=c()
+for(i in 1:length(X)){
+    Values[i] = f(X[i])
+}
+
+cat("Values:\n")
+Values
+```
+
+#### d. Performs *maxiter* iterations where at each iteration
+
+```{r}
+genetic_fun <- function(maxiter, mutprob){
+  X = seq(0,30, 5)
+  Values=c()
+  for(i in 1:length(X)){
+    Values[i] = f(X[i])
+  }
+  
+  i=0
+  ### (d)
+  while(i <= maxiter){
+  
+    #find 2 parent ind
+    parent = which(X %in% sample(X,2))
+
+    #find 1 victim ind
+    victim=c()
+    for ( a in 1:length(X)){
+      victim[a] = f(X[a])
+    }
+    victim = which(victim %in% min(victim))
+  
+    #crossover a new kid
+    x = f(X[parent[1]])
+    y = f(X[parent[2]])
+    kid = crossover(x,y)
+ 
+    #Use runif to see if new kid needs to be mutated
+    prop_mutat = runif(1,0,1)
+    if (prop_mutat < mutprob){
+      new_kid = mutate(kid)
+    }else{
+      new_kid = kid
+    }
+  
+    #replace victim by a new kid
+    Values[victim] = new_kid
+    i=i+1
+  }
+  return(Values) 
+}
+
+```
+
+```{r}
+maxiter=100
+mutprob=0.1
+
+
+plot(fx, type="l", ylim=c(-400,50),main="Genetic argorithm", ylab="Value")
+lines(genetic_fun(maxiter,mutprob), col="red", type="l")
+
+
+```
+```{r}
+
+```
+
+
+# Question2.
+
+### 1. 
+```{r}
+data = read.csv("~/Desktop/732A90_VT2020_Materials/physical1.csv")
+
+library(ggplot2)
+data =as.data.frame(data)
+ggplot(data=data, aes(x=X))+
+  geom_line(aes(y=Z, colour="Z"))+
+  geom_line(aes(y=Y, colour="Y"))
+
+```
+
+
+```{r}
+
+
+```
+
+
+
+
+
+
+
+
+ 
