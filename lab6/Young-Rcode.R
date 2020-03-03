@@ -21,12 +21,13 @@ genetic <- function(maxiter, mutprob){
   
   # a,b) plotting f, defining initial population
   x <- seq(from=0, to=30, by=0.1)
-  plot(x=x, y=f(x), main = 'Plotting Function f', xlab="Population",
-       ylab="f(x)", ylim=c(-3, 1), type="l")
+  plot(x=x, y=f(x), main = c("Maxiter: ", maxiter, "Mutprob: ", mutprob), xlab="Population",
+       ylab="Values", ylim=c(-3, 1), type="l")
   x <- seq(from=0, to=30, by=5)
   points(x=x, y=f(x))
+  abline(v=x[which.max(f(x))], col="green")
     ## The maximum value is easily found. On the plot, its
-    ## position is shown in red colored line
+    ## position is shown in green colored line
 
   # c) computes vector Values for each population point
   Values <- f(x)
