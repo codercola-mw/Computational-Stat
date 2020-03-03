@@ -49,6 +49,7 @@ genetic <- function(maxiter, mutprob){
     max_vals[i] = max(Values)
   }
   points(x=current_pop, y=Values, col="red", pch=3)
+  cat("Maximum values with ", mutprob, " mutation probability are: ")
   return(max_vals)
 }
 
