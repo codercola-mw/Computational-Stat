@@ -20,10 +20,11 @@ mutate <- function(x){
 genetic <- function(maxiter, mutprob){
   
   # a,b) plotting f, defining initial population
+  x <- seq(from=0, to=30, by=0.1)
+  plot(x=x, y=f(x), main = 'Plotting Function f', xlab="Population",
+       ylab="f(x)", ylim=c(-3, 1), type="l")
   x <- seq(from=0, to=30, by=5)
-  plot(x, f(x), main = 'Plotting Function f', xlab="X",
-       ylab="f(x)", ylim=c(-3, 1))
-  abline(v=x[which.max(f(x))], col="green")
+  points(x=x, y=f(x))
     ## The maximum value is easily found. On the plot, its
     ## position is shown in red colored line
 
@@ -39,6 +40,9 @@ genetic <- function(maxiter, mutprob){
     ## ii) index of the smallest objective function
     victim = order(Values)[1]
     ## iii) crossover or mutation
+#    kid = crossover(current_pop[parents[1]], current_pop[parents[2]])
+#    u <- runif(1)
+#    if (u < mutprob) {kid = mutate(kid)}
     cross_kid = crossover(current_pop[parents[1]], current_pop[parents[2]])
     mut_kid = mutate(cross_kid)
     kid = sample(x = c(mut_kid, cross_kid), size=1, 
@@ -49,12 +53,13 @@ genetic <- function(maxiter, mutprob){
     max_vals[i] = max(Values)
   }
   points(x=current_pop, y=Values, col="red", pch=3)
-  cat("Maximum values with ", mutprob, " mutation probability are: ")
-  return(max_vals)
+  cat("Maximum value with ", mutprob, " mutation probability is:", "\n")
+  return(max(max_vals))
 }
 
 ## 1-5.
 par(mfrow=c(1,2))
+set.seed(12345)
 genetic(maxiter=10, mutprob=0.1)
 genetic(maxiter=100, mutprob=0.1)
 
@@ -63,10 +68,10 @@ genetic(maxiter=100, mutprob=0.5)
 
 genetic(maxiter=10, mutprob=0.9)
 genetic(maxiter=100, mutprob=0.9)
+
   ## As the number of maxiter increases, the current population
   ## tends to converge.
 
-  ## As the probability of mutation increases, difference among
-  ## maximum values of vector `Values` tends to vary.
-
-
+  ## When the iterations are over, the maximum value obtained 
+  ## through it never decreases from the maximum value obtained
+  ## using the initial population.
