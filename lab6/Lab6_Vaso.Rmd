@@ -1,0 +1,229 @@
+---
+title: "Lab 6 Vaso"
+author: "Vasileia Kampouraki"
+date: "28/2/2020"
+output: pdf_document
+---
+
+# Question 1: Genetic algorithm
+
+**In this assignment, you will try to perform one-dimensional maximization with the help of a genetic algorithm.**
+
+
+### 1. Define the function $$f(x):= \frac{x^2}{e^x} - 2exp(-(9sinx)/(x^2 + x + 1))$$
+
+```{r}
+f <- function(x){
+  f= x^2/exp(x) - 2*exp(-(9*sin(x))/(x^2 + x + 1))
+  return(f)
+} 
+```
+
+
+### 2. Define the function crossover(): for two scalars x and y it returns their "kid" as (x+y)/2.
+
+```{r}
+crossover <- function(x,y){
+  kid = (x+y)/2
+  return(kid)
+  
+}
+```
+
+
+### 3. Define the function mutate() that for a scalar x returns the result of the integer division $x^2$ mod 30. (Operation mod is denoted in R as %%).
+
+
+```{r}
+mutate <- function(x){
+  res = x^2 %% 30
+  return(res)
+}
+```
+
+
+### 4. Write a function that depends on the parameters *maxiter* and *mutprob* and:
+
+#### (a) Plots function f in the range from 0 to 30. Do you see any maximum value?
+
+#### (b) Defines an initial population for the genetic algorithm as X = (0,5,10,15,...,30).
+
+#### (c) Computes vector Values that contains the function values for each population point.
+
+#### (d) Performs maxiter iterations where at each iteration
+  
+i. Two indexes are randomly sampled from the current population, they are further used as parents (use sample()).
+   
+ii. One index with the smallest objective function is selected from the current population,the point is referred to as victim (use order()).   
+  
+iii. Parents are used to produce a new kid by crossover. Mutate this kid with probability mutprob (use crossover(), mutate()).
+  
+iv. The victim is replaced by the kid in the population and the vector Values is updated.
+  
+v. The current maximal value of the objective function is saved.
+  
+#### (e) Add the final observations to the current plot in another colour.
+
+```{r}
+set.seed(12345)
+GA <- function(maxiter,mutprob){
+  
+  X <- seq(0,30,5)
+  v <- c(0:30)
+  initialplot <-  plot(v,f(v),main="Population and its fitness",xlab="x",ylab = "values",type="l")
+  points(X,f(X),col="green",type = "p",pch=19) #plot also the initial population for comparison
+  
+  
+  #values <- vector(length=length(X))
+  parent <- vector(length = 2)
+  kid <- vector(length = 2)
+  victim <- 0
+  max_value <- 0
+  
+  X <- seq(0,30,5) #initialize population
+  values <- f(X) 
+  
+  i=1
+  while (i <= maxiter){
+      
+      parent <- sample(X,2)
+      
+      victim <- which.min(order(values)) #index of the smallest obj func value 
+      
+      kid <- crossover(parent[1],parent[2])
+      
+      #Use runif to see if new kid needs to be mutated
+      prop_mutat = runif(1,0,1)
+      
+      if (prop_mutat < mutprob){
+        new_kid = mutate(kid)
+      } else {
+        new_kid = kid
+      }
+      
+      #replace victim by new kid and update values
+      X[victim] = new_kid
+      values[victim] = f(new_kid)
+      
+      
+      max_value = max(values) #current maximal value of the objective function
+      i=i+1
+      
+  }
+  initialplot
+  points(X,values,col="red",type = "p",pch=19)
+  legend("topright",-1, -0.5, legend=c("initial X", "final X"),
+       col=c("green", "red"), pch=19)
+  return(list("population"=X,"values"=values,"max_value"=max_value))
+}
+
+X <- seq(0,30,5)
+cat("The max value of the initial population is","\n")
+max(f(X))
+
+par(mfrow=c(2,2))
+GA(10,0.1)
+GA(10,0.5)
+GA(10,0.9)
+
+par(mfrow=c(2,2))
+GA(100,0.1)
+GA(100,0.5)
+GA(100,0.9)
+
+```
+  
+  
+  
+Genetic algorithm is widely used for optimization problems. This algorithm is inspired by the evolutionary theory and the ideas of natural selection.
+So, based on this idea, we start with an initial population and based on an objective function that evaluates the fitness of each point in the population we keep every time those candidates that have the best fitness values and then those candidates reproduce and give the offsprings. This is done using the successor functions, which are *crossover()* and *mutation()* and then comes selection.
+*Crossover* is used to combine two parents and produce a child and *mutation* takes a candidate and returns a slightly different candidate.
+Mutation is very important for the genetic algorithm because sometimes some important genes might be missing from the population and thus, mutation allows as to search as much as possible in the search space and avoid getting stuck in local maxima(or minima). 
+
+At first we are asked to plot function f in the range from 0 to 30 and see if there's a maximum value. The maximum value we get from f for the initial population X=(0,5,...,30) is -1.951947.
+
+The first three plots represent the results of the algorithm run with **maxiter**=10 and **mutprob**=0.1,0.5 and 0.9 respectively.
+
+The last three plots represent the results of the algorithm run with **maxiter**=100 and **mutprob**=0.1,0.5 and 0.9 respectively.
+
+
+# Question 2: EM algorithm
+
+**The data file physical.csv describes a behavior of two related physical processes Y=Y(X) and Z=Z(X).**
+
+### 1. Make a time series plot describing dependence of Z and Y versus X. Does it seem that two processes are related to each other? What can you say about the variation of the response values with respect to X?
+
+```{r}
+data <- read.csv("C:/Users/Vaso/Desktop/data computational/physical1.csv")
+X <- data$X
+Y <- data$Y
+Z <- data$Z
+```
+
+```{r}
+plot(X,Z,main="Dependence of Z and Y versus X",type="l",ylab="Z,Y")
+lines(X,Y,col="red")
+legend("topright",legend=c("Z", "Y"),lty =1,
+       col=c("black", "red"))
+```
+
+First thing we observe when looking at this time series plot is that there Z has some blank points which means that some data are missing. Z is has quite a few peaks, with the highest ones being observed for small values of X. Y also has a quite similar pattern to Z, with peaks that are more intense at the beginning, but generally smaller values than Z.
+As we said, the variation of both response values compared to X is higher for small values of X and smaller for bigger values of X.
+
+### 2. Note that there are some missing values of Z in the data which implies problems in estimating models by maximum likelihood. Use the following model $Y_i \sim exp(X_i/ \lambda),$ $Z_i \sim exp(X_i/ 2\lambda)$ where $\lambda$ is some unknown parameter. The goal is to derive an EM algorithm that estimates $\lambda$.  
+
+
+
+### 3. Implement this algorithm in R, use $\lambda_0$ = 100 and convergence criterion "stop if the change in $\lambda$ is less than 0:001". What is the optimal $\lambda$ and how many iterations were required to compute it?
+```{r}
+set.seed(12345)
+
+n= nrow(data)
+Zobs= Z[!is.na(Z)]
+Zmiss= Z[is.na(Z)]
+
+M= length(Zmiss) 
+
+lambda <- vector()
+lambda[1] = 100
+
+i=2
+repeat{
+  lambda[i] = (sum(X*Y) + 0.5*sum(X[which(!is.na(Z))]*Zobs) + M*lambda[i-1]) / (2*n)
+  
+  if (abs(lambda[i]- lambda[i-1]) < 0.001){
+    break()
+  }
+  i = i+1
+ 
+}
+
+num_iter = length(lambda)
+optimal = lambda[num_iter]
+
+cat("The optimal lambda is:","\n")
+optimal
+
+cat("and the number of iterations required is:","\n")
+num_iter
+
+```
+
+### 4. Plot E[Y] and E[Z] versus X in the same plot as Y and Z versus X. Comment whether the computed $\lambda$ seems to be reasonable.
+
+```{r}
+EY <- optimal/X
+EZ <- (2*optimal)/X
+plot(X,Z,main="Dependence of Z and Y versus X",type="l",ylab="Z,Y")
+lines(X,Y,col="red")
+lines(EY,col="purple",lty=2)
+lines(EZ,col="blue",lty=2)
+
+
+legend("topright",legend=c("Z", "Y","EY","EZ"),lty =c(1,1,2,2),
+       col=c("black", "red","purple","blue"))
+```
+
+Since $Y_i \sim exp(X_i/ \lambda),$ $Z_i \sim exp(X_i/ 2\lambda)$ the expected value of Y will be E(Y)= $\lambda$/X and the expected value of Z will be E(Z)= $\lambda$/2X.
+
+Both lines that represent the expected values seen in the plot seem to be reasonable for representing the mean as they have more or less the same pattern as the data so it seems that the mean is following. Also, E(Y) is higher in the plot and this is actually reasonable as Z has generally a bit higher values compared to Y and also the mean of Z is two times the mean of Y.
