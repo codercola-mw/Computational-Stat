@@ -63,7 +63,7 @@ v. The current maximal value of the objective function is saved.
   
 #### (e) Add the final observations to the current plot in another colour.
 
-```{r}
+```{r, echo=FALSE, message=FALSE, warning=FALSE}
 set.seed(12345)
 GA <- function(maxiter,mutprob){
   
@@ -75,7 +75,6 @@ GA <- function(maxiter,mutprob){
   
   #values <- vector(length=length(X))
   parent <- vector(length = 2)
-  kid <- vector(length = 2)
   victim <- 0
   max_value <- 0
   
@@ -132,18 +131,19 @@ GA(100,0.9)
 
 ```
   
-  
-  
-Genetic algorithm is widely used for optimization problems. This algorithm is inspired by the evolutionary theory and the ideas of natural selection.
-So, based on this idea, we start with an initial population and based on an objective function that evaluates the fitness of each point in the population we keep every time those candidates that have the best fitness values and then those candidates reproduce and give the offsprings. This is done using the successor functions, which are *crossover()* and *mutation()* and then comes selection.
-*Crossover* is used to combine two parents and produce a child and *mutation* takes a candidate and returns a slightly different candidate.
-Mutation is very important for the genetic algorithm because sometimes some important genes might be missing from the population and thus, mutation allows as to search as much as possible in the search space and avoid getting stuck in local maxima(or minima). 
+ Genetic algorithm is widely used for optimization problems. This algorithm is inspired by the evolutionary theory and the ideas of natural selection.
 
-At first we are asked to plot function f in the range from 0 to 30 and see if there's a maximum value. The maximum value we get from f for the initial population X=(0,5,...,30) is -1.951947.
+ So, based on this idea, we start with an initial population and based on an objective function that evaluates the fitness of each point in the population we keep every time those candidates that have the best fitness values and then those candidates reproduce and give the offsprings. This is done using the successor functions, which are *crossover()* and *mutation()* and then comes selection.
+ 
+ *Crossover* is used to combine two parents and produce a child and *mutation* takes a candidate and returns a slightly different candidate.
 
-The first three plots represent the results of the algorithm run with **maxiter**=10 and **mutprob**=0.1,0.5 and 0.9 respectively.
+ Mutation is very important for the genetic algorithm because sometimes some important genes might be missing from the population and thus, mutation allows to search as much as possible in the search space and avoid getting stuck in local maxima(or minima). 
 
-The last three plots represent the results of the algorithm run with **maxiter**=100 and **mutprob**=0.1,0.5 and 0.9 respectively.
+ At first we are asked to plot function f in the range from 0 to 30 and see if there's a maximum value. The maximum value we get from f for the initial population X=(0,5,...,30) is -1.951947.
+
+ The first three plots represent the results of the algorithm run with **maxiter**=10 and **mutprob**=0.1,0.5 and 0.9 respectively. It is possible to observe that the final `X` are wider spread as the value of **mutprob** increases. 
+
+ The last three plots represent the results of the algorithm run with **maxiter**=100 and **mutprob**=0.1,0.5 and 0.9 respectively. Compare to the previous graphs with **maxiter**=10, it is possible to observe that the final `X` of the same **mutprob** are rather concentrated. Unlike **maxiter**=10, having higher mutation probability does not lead to wider spread final `X`. This is because although the higher mutation probability leads to wider search over population, repeating of breeding leads to convergence of the final population.
 
 
 # Question 2: EM algorithm
@@ -153,13 +153,13 @@ The last three plots represent the results of the algorithm run with **maxiter**
 ### 1. Make a time series plot describing dependence of Z and Y versus X. Does it seem that two processes are related to each other? What can you say about the variation of the response values with respect to X?
 
 ```{r}
-data <- read.csv("C:/Users/Vaso/Desktop/data computational/physical1.csv")
+data <- read.csv("~/Computational Stat/732A90_VT2020_Materials/physical1.csv")
 X <- data$X
 Y <- data$Y
 Z <- data$Z
 ```
 
-```{r}
+```{r, echo=FALSE}
 plot(X,Z,main="Dependence of Z and Y versus X",type="l",ylab="Z,Y")
 lines(X,Y,col="red")
 legend("topright",legend=c("Z", "Y"),lty =1,
@@ -181,37 +181,37 @@ As we said, the variation of both response values compared to X is higher for sm
  
 1. Assume that Y and Z are independent.
 
-2. Likelihood Function of $\lambda$
+2. Calculate likelihood function of $\lambda$
 
 $L(\lambda|Y,Z)$ = $\frac{\prod_{i=1}^{n} x_i^2}{(2\lambda^2)^n}$ $e^{-\frac{\sum_{i=1}^{n} x_i y_i}{\lambda} -\frac{\sum_{i=1}^{n} x_i z_i}{2\lambda}}$
 
-3. Loglikelihood Function of $\lambda$
+3. Calculate loglikelihood function of $\lambda$
 
 $l(\lambda|Y,Z)$ = $-2nlog(\lambda)$ - $\frac{\sum_{i=1}^{n} x_i y_i}{\lambda}$ - $\frac{\sum_{i=1}^{n} x_i z_i}{2\lambda}$ + $C$
 
  The terms that does not contain $\lambda$ do not affect loglikelihood value, because those values are fixed. Therefore, on above mathematical expression, such terms are written as a constant, $C$.
  
-4. Expected Loglikelihood
+4. Find expected loglikelihood
  
 $E[l(\lambda|Y,Z)]$ = $E[$ $-2nlog(\lambda)$ - $\frac{\sum_{i=1}^{n} x_i y_i}{\lambda}$ - $\frac{\sum_{i \in observed} x_i z_i}{2\lambda}$ - $\frac{\sum_{j \in unobserved} x_j z_j}{2\lambda}$ + $C$ $]$
 
- All terms except $\frac{\sum_{j \in unobserved} x_j z_j}{2\lambda}$ are from observed data. Expected value of a constant number is a constant number. So there is only one term that involves uncertainty. Since `Z` follows exponential function with parameter $\frac{x_j}{2\lambda_{t-1}}$, unobzerved $z_i$'s expected value will be $\frac{2\lambda_{t-1}}{x_j}$, such that ${\lambda_{t-1}}$ represents $\lambda$ value obatained in previous iteration.
+ All terms except $\frac{\sum_{j \in unobserved} x_j z_j}{2\lambda}$ are from observed data. Expected value of a constant number is a constant number. So there is only one term that involves uncertainty. Since `Z` follows exponential distribution with parameter $\frac{x_j}{2\lambda_{t-1}}$, unobzerved $Z_i$'s expected value will be $\frac{2\lambda_{t-1}}{x_j}$, such that ${\lambda_{t-1}}$ represents $\lambda$ value obatained in previous iteration.
  
 $E[$ $\frac{\sum_{j \in unobserved} x_j z_j}{2\lambda}$ $]$
 = $\sum_{j \in unobserved} \frac{x_j}{2\lambda} \frac{2\lambda_{t-1}}{x_j}$
 = $\sum_{j \in unobserved} \frac{\lambda_{t-1}}{\lambda}$
 = $U$ $\frac{\lambda_{t-1}}{\lambda}$, U is a number of unobserved `Z`.
 
-5. Take a Derivative of the Expected Loglikelihood with Respect to $\lambda$
+5. Take a derivative of the expected loglikelihood with respect to $\lambda$
 
 $\frac{\partial l(\lambda)}{\partial \lambda}$ = $\frac {-2n}{\lambda}$ + $\frac{\sum_{i=1}^{n} x_i y_i}{\lambda^2}$ + $\frac{\sum_{i \in observed} x_i z_i}{2\lambda^2}$ + $U$ $\frac{\lambda_{t-1}}{\lambda^2}$
 
-6. Set above equal to 0, Find $\lambda$ and Update its Value
+6. Set above equal to 0, find $\lambda$ and update its value
 
 $\lambda$ = $\frac{(\sum_{i=1}^{n} x_i y_i)+(\frac{\sum_{i \in observed} x_i z_i}{2})+(U\lambda_{t-1})}{2n}$
 
  
-```{r}
+```{r, echo=FALSE}
 set.seed(12345)
 
 n= nrow(data)
@@ -247,7 +247,7 @@ num_iter
 
 ### 4. Plot E[Y] and E[Z] versus X in the same plot as Y and Z versus X. Comment whether the computed $\lambda$ seems to be reasonable.
 
-```{r}
+```{r, echo=FALSE}
 EY <- optimal/X
 EZ <- (2*optimal)/X
 plot(X,Z,main="Dependence of Z and Y versus X",type="l",ylab="Z,Y")
@@ -263,3 +263,10 @@ legend("topright",legend=c("Z", "Y","EY","EZ"),lty =c(1,1,2,2),
 Since $Y_i \sim exp(X_i/ \lambda),$ $Z_i \sim exp(X_i/ 2\lambda)$ the expected value of Y will be E(Y)= $\lambda$/X and the expected value of Z will be E(Z)= $\lambda$/2X.
 
 Both lines that represent the expected values seen in the plot seem to be reasonable for representing the mean as they have more or less the same pattern as the data so it seems that the mean is following. Also, E(Y) is higher in the plot and this is actually reasonable as Z has generally a bit higher values compared to Y and also the mean of Z is two times the mean of Y.
+
+
+# Appendix
+
+```{r ref.label=knitr::all_labels(), echo=T, eval=F}
+
+```
