@@ -1,6 +1,6 @@
 ---
-title: "Lab 6 Vaso"
-author: "Vasileia Kampouraki"
+title: "Computational Statistics Lab 6"
+author: "Vasileia Kampouraki, Weng Hang Wong, Jooyoung Lee"
 date: "28/2/2020"
 output: pdf_document
 ---
@@ -26,7 +26,6 @@ f <- function(x){
 crossover <- function(x,y){
   kid = (x+y)/2
   return(kid)
-  
 }
 ```
 
@@ -174,7 +173,44 @@ As we said, the variation of both response values compared to X is higher for sm
 
 
 
-### 3. Implement this algorithm in R, use $\lambda_0$ = 100 and convergence criterion "stop if the change in $\lambda$ is less than 0:001". What is the optimal $\lambda$ and how many iterations were required to compute it?
+### 3. Implement this algorithm in R, use $\lambda_0$ = 100 and convergence criterion "stop if the change in $\lambda$ is less than 0.001". What is the optimal $\lambda$ and how many iterations were required to compute it?
+
+ With optimal value $\lambda$, loglikelihood will be maximized. However, due to several missing values of `Z`, expected value of loglikelihood will be maximized instead. Through this task, we will try to estimate the optimal value $\lambda$ that could return the maximum expected value of loglikelihood. Furthermore, the number of iterations performed to obtain optimal $\lambda$ will be found.
+ 
+ The process of obtaining above mentioned two is based on the following mathematics:
+ 
+1. Assume that Y and Z are independent.
+
+2. Likelihood Function of $\lambda$
+
+$L(\lambda|Y,Z)$ = $\frac{\prod_{i=1}^{n} x_i^2}{(2\lambda^2)^n}$ $e^{-\frac{\sum_{i=1}^{n} x_i y_i}{\lambda} -\frac{\sum_{i=1}^{n} x_i z_i}{2\lambda}}$
+
+3. Loglikelihood Function of $\lambda$
+
+$l(\lambda|Y,Z)$ = $-2nlog(\lambda)$ - $\frac{\sum_{i=1}^{n} x_i y_i}{\lambda}$ - $\frac{\sum_{i=1}^{n} x_i z_i}{2\lambda}$ + $C$
+
+ The terms that does not contain $\lambda$ do not affect loglikelihood value, because those values are fixed. Therefore, on above mathematical expression, such terms are written as a constant, $C$.
+ 
+4. Expected Loglikelihood
+ 
+$E[l(\lambda|Y,Z)]$ = $E[$ $-2nlog(\lambda)$ - $\frac{\sum_{i=1}^{n} x_i y_i}{\lambda}$ - $\frac{\sum_{i \in observed} x_i z_i}{2\lambda}$ - $\frac{\sum_{j \in unobserved} x_j z_j}{2\lambda}$ + $C$ $]$
+
+ All terms except $\frac{\sum_{j \in unobserved} x_j z_j}{2\lambda}$ are from observed data. Expected value of a constant number is a constant number. So there is only one term that involves uncertainty. Since `Z` follows exponential function with parameter $\frac{x_j}{2\lambda_{t-1}}$, unobzerved $z_i$'s expected value will be $\frac{2\lambda_{t-1}}{x_j}$, such that ${\lambda_{t-1}}$ represents $\lambda$ value obatained in previous iteration.
+ 
+$E[$ $\frac{\sum_{j \in unobserved} x_j z_j}{2\lambda}$ $]$
+= $\sum_{j \in unobserved} \frac{x_j}{2\lambda} \frac{2\lambda_{t-1}}{x_j}$
+= $\sum_{j \in unobserved} \frac{\lambda_{t-1}}{\lambda}$
+= $U$ $\frac{\lambda_{t-1}}{\lambda}$, U is a number of unobserved `Z`.
+
+5. Take a Derivative of the Expected Loglikelihood with Respect to $\lambda$
+
+$\frac{\partial l(\lambda)}{\partial \lambda}$ = $\frac {-2n}{\lambda}$ + $\frac{\sum_{i=1}^{n} x_i y_i}{\lambda^2}$ + $\frac{\sum_{i \in observed} x_i z_i}{2\lambda^2}$ + $U$ $\frac{\lambda_{t-1}}{\lambda^2}$
+
+6. Set above equal to 0, Find $\lambda$ and Update its Value
+
+$\lambda$ = $\frac{(\sum_{i=1}^{n} x_i y_i)+(\frac{\sum_{i \in observed} x_i z_i}{2})+(U\lambda_{t-1})}{2n}$
+
+ 
 ```{r}
 set.seed(12345)
 
