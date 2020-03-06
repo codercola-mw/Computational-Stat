@@ -1,6 +1,6 @@
 ---
-title: "Computational Statistics Lab 6"
-author: "Vasileia Kampouraki, Weng Hang Wong, Jooyoung Lee"
+title: "Lab 6 Vaso"
+author: "Vasileia Kampouraki"
 date: "28/2/2020"
 output: pdf_document
 ---
@@ -63,7 +63,7 @@ v. The current maximal value of the objective function is saved.
   
 #### (e) Add the final observations to the current plot in another colour.
 
-```{r, echo=FALSE, message=FALSE, warning=FALSE}
+```{r echo=F}
 set.seed(12345)
 GA <- function(maxiter,mutprob){
   
@@ -72,9 +72,9 @@ GA <- function(maxiter,mutprob){
   initialplot <-  plot(v,f(v),main="Population and its fitness",xlab="x",ylab = "values",type="l")
   points(X,f(X),col="green",type = "p",pch=19) #plot also the initial population for comparison
   
-  
-  #values <- vector(length=length(X))
+
   parent <- vector(length = 2)
+  kid <- vector(length = 2)
   victim <- 0
   max_value <- 0
   
@@ -86,7 +86,7 @@ GA <- function(maxiter,mutprob){
       
       parent <- sample(X,2)
       
-      victim <- which.min(order(values)) #index of the smallest obj func value 
+      victim <- order(values)[1] #index of the smallest obj func value 
       
       kid <- crossover(parent[1],parent[2])
       
@@ -101,7 +101,7 @@ GA <- function(maxiter,mutprob){
       
       #replace victim by new kid and update values
       X[victim] = new_kid
-      values[victim] = f(new_kid)
+      values = f(X) #update values
       
       
       max_value = max(values) #current maximal value of the objective function
@@ -131,19 +131,24 @@ GA(100,0.9)
 
 ```
   
- Genetic algorithm is widely used for optimization problems. This algorithm is inspired by the evolutionary theory and the ideas of natural selection.
+  
+  
+Genetic algorithm is widely used for optimization problems. This algorithm is inspired by the evolutionary theory and the ideas of natural selection.
+So, based on this idea, we start with an initial population and based on an objective function that evaluates the fitness of each point in the population we keep every time those candidates that have the best fitness values and then those candidates reproduce and give the offsprings. This is done using the successor functions, which are *crossover()* and *mutation()* and then comes selection.
+*Crossover* is used to combine two parents and produce a child and *mutation* takes a candidate and returns a slightly different candidate.
+Mutation is very important for the genetic algorithm because sometimes some important genes might be missing from the population and thus, mutation allows as to search as much as possible in the search space and avoid getting stuck in local maxima(or minima). 
 
- So, based on this idea, we start with an initial population and based on an objective function that evaluates the fitness of each point in the population we keep every time those candidates that have the best fitness values and then those candidates reproduce and give the offsprings. This is done using the successor functions, which are *crossover()* and *mutation()* and then comes selection.
- 
- *Crossover* is used to combine two parents and produce a child and *mutation* takes a candidate and returns a slightly different candidate.
+At first we are asked to plot function f in the range from 0 to 30 and see if there's a maximum value. So, in this graph we can observe the global maximum value is approximately 0.20 and is given when x is around 2.
 
- Mutation is very important for the genetic algorithm because sometimes some important genes might be missing from the population and thus, mutation allows to search as much as possible in the search space and avoid getting stuck in local maxima(or minima). 
+The first three plots represent the results of the algorithm run with **maxiter**=10 and **mutprob**=0.1,0.5 and 0.9 respectively.
 
- At first we are asked to plot function f in the range from 0 to 30 and see if there's a maximum value. The maximum value we get from f for the initial population X=(0,5,...,30) is -1.951947.
+The last three plots represent the results of the algorithm run with **maxiter**=100 and **mutprob**=0.1,0.5 and 0.9 respectively.
 
- The first three plots represent the results of the algorithm run with **maxiter**=10 and **mutprob**=0.1,0.5 and 0.9 respectively. It is possible to observe that the final `X` are wider spread as the value of **mutprob** increases. 
+For **maxiter**=10 we can see that the algorithm does not converge to the global maximum for none of the three probabilities. When *mutprob*=0.5 the max value is -1.549543 which is the biggest compared to the other two max values obtained with mutation probabilities 0.1 and 0.9 but still it's quite far from the global maximum. We would say that probably 10 iterations were not enough for the algorithm to converge and the algorithm gets stuck to local maxima.
 
- The last three plots represent the results of the algorithm run with **maxiter**=100 and **mutprob**=0.1,0.5 and 0.9 respectively. Compare to the previous graphs with **maxiter**=10, it is possible to observe that the final `X` of the same **mutprob** are rather concentrated. Unlike **maxiter**=10, having higher mutation probability does not lead to wider spread final `X`. This is because although the higher mutation probability leads to wider search over population, repeating of breeding leads to convergence of the final population.
+On the other hand, when **maxiter**=100 we see that the algorithm converged with *mutprob*=0.5 and the maximum value obtained is 0.234853. For *mutprob*=0.9 the maximum value found was -0.3782303 which was close to the global but still not converged and the maximum value obtained with *mutprob*=0.1 was even further from the optimal one.
+
+To conclude,the algorithm found the optimal maximum value(0.234853) for **maxiter**=100 and *mutprob*=0.5.
 
 
 # Question 2: EM algorithm
@@ -152,28 +157,25 @@ GA(100,0.9)
 
 ### 1. Make a time series plot describing dependence of Z and Y versus X. Does it seem that two processes are related to each other? What can you say about the variation of the response values with respect to X?
 
-```{r}
+```{r echo=F}
 data <- read.csv("~/Computational Stat/732A90_VT2020_Materials/physical1.csv")
 X <- data$X
 Y <- data$Y
 Z <- data$Z
 ```
 
-```{r, echo=FALSE}
+
+```{r echo=F}
 plot(X,Z,main="Dependence of Z and Y versus X",type="l",ylab="Z,Y")
 lines(X,Y,col="red")
 legend("topright",legend=c("Z", "Y"),lty =1,
        col=c("black", "red"))
 ```
 
-First thing we observe when looking at this time series plot is that there Z has some blank points which means that some data are missing. Z is has quite a few peaks, with the highest ones being observed for small values of X. Y also has a quite similar pattern to Z, with peaks that are more intense at the beginning, but generally smaller values than Z.
+First thing we observe when looking at this time series plot is that there Z has some blank points which means that some data are missing. Z has quite a few peaks, with the highest ones being observed for small values of X. Y also has a quite similar pattern to Z, with peaks that are more intense at the beginning, but generally smaller values than Z.
 As we said, the variation of both response values compared to X is higher for small values of X and smaller for bigger values of X.
 
 ### 2. Note that there are some missing values of Z in the data which implies problems in estimating models by maximum likelihood. Use the following model $Y_i \sim exp(X_i/ \lambda),$ $Z_i \sim exp(X_i/ 2\lambda)$ where $\lambda$ is some unknown parameter. The goal is to derive an EM algorithm that estimates $\lambda$.  
-
-
-
-### 3. Implement this algorithm in R, use $\lambda_0$ = 100 and convergence criterion "stop if the change in $\lambda$ is less than 0.001". What is the optimal $\lambda$ and how many iterations were required to compute it?
 
  With optimal value $\lambda$, loglikelihood will be maximized. However, due to several missing values of `Z`, expected value of loglikelihood will be maximized instead. Through this task, we will try to estimate the optimal value $\lambda$ that could return the maximum expected value of loglikelihood. Furthermore, the number of iterations performed to obtain optimal $\lambda$ will be found.
  
@@ -210,8 +212,8 @@ $\frac{\partial l(\lambda)}{\partial \lambda}$ = $\frac {-2n}{\lambda}$ + $\frac
 
 $\lambda$ = $\frac{(\sum_{i=1}^{n} x_i y_i)+(\frac{\sum_{i \in observed} x_i z_i}{2})+(U\lambda_{t-1})}{2n}$
 
- 
-```{r, echo=FALSE}
+### 3. Implement this algorithm in R, use $\lambda_0$ = 100 and convergence criterion "stop if the change in $\lambda$ is less than 0:001". What is the optimal $\lambda$ and how many iterations were required to compute it?
+```{r }
 set.seed(12345)
 
 n= nrow(data)
@@ -247,7 +249,7 @@ num_iter
 
 ### 4. Plot E[Y] and E[Z] versus X in the same plot as Y and Z versus X. Comment whether the computed $\lambda$ seems to be reasonable.
 
-```{r, echo=FALSE}
+```{r, echo=F}
 EY <- optimal/X
 EZ <- (2*optimal)/X
 plot(X,Z,main="Dependence of Z and Y versus X",type="l",ylab="Z,Y")
@@ -264,9 +266,8 @@ Since $Y_i \sim exp(X_i/ \lambda),$ $Z_i \sim exp(X_i/ 2\lambda)$ the expected v
 
 Both lines that represent the expected values seen in the plot seem to be reasonable for representing the mean as they have more or less the same pattern as the data so it seems that the mean is following. Also, E(Y) is higher in the plot and this is actually reasonable as Z has generally a bit higher values compared to Y and also the mean of Z is two times the mean of Y.
 
-
+\newpage
 # Appendix
 
 ```{r ref.label=knitr::all_labels(), echo=T, eval=F}
-
 ```
