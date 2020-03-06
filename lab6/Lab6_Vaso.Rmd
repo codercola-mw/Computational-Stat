@@ -1,6 +1,6 @@
 ---
-title: "Lab 6 Vaso"
-author: "Vasileia Kampouraki"
+title: "Computational Statistics Lab 6"
+author: "Vasileia Kampouraki, Weng Hang Wong, Jooyoung Lee"
 date: "28/2/2020"
 output: pdf_document
 ---
